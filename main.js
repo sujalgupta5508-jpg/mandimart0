@@ -520,7 +520,7 @@ function doLogin(event) {
     })
     .catch(err => {
         // Demo mode - no backend
-        alert('🔐 Demo Login: Welcome back! (Backend: PHP/MySQL in production)');
+        alert('🔐 Demo Login: Welcome back!');
         window.location.href = 'index.html';
     });
     return false;
@@ -545,7 +545,7 @@ function doRegister(event) {
         }
     })
     .catch(err => {
-        alert('📝 Demo Register: Account created! (Backend: PHP/MySQL in production)');
+        alert('📝 Demo Register: Account created!');
         showTab('login', null);
     });
     return false;
@@ -998,7 +998,8 @@ function resetComparison() {
 // ===============================
 
 // LOCAL TESTING
-const API_BASE_URL = "http://localhost:5000";
+const API_BASE_URL =
+    "https://mandimart-ai.onrender.com";
 
 // AFTER DEPLOYING PYTHON BACKEND:
 // const API_BASE_URL = "https://your-backend-url.onrender.com";
