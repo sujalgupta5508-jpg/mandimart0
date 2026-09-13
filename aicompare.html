@@ -24,6 +24,38 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+    <input
+    type="file"
+    id="file1"
+    accept="image/*"
+    onchange="loadImage('file1', 'preview1')"
+>
+
+<img
+    id="preview1"
+    style="display:none; max-width:300px;"
+>
+
+
+<input
+    type="file"
+    id="file2"
+    accept="image/*"
+    onchange="loadImage('file2', 'preview2')"
+>
+
+<img
+    id="preview2"
+    style="display:none; max-width:300px;"
+>
+
+
+<button onclick="runAICompare()">
+    🤖 Compare Vegetables
+</button>
+
+
+<div id="aiResult"></div>
 
     <nav class="navbar-mandi">
         <a class="brand" href="index.html">🌾 Mandi<span>Mart</span></a>
