@@ -267,52 +267,170 @@ function populateCompare() {
     compareProducts();
 }
 
-function compareProducts() {
-    const idA = document.getElementById('compA').value;
-    const idB = document.getElementById('compB').value;
-    const result = document.getElementById('compareResult');
-    
-    if (!idA || !idB || idA === 'Select Product A' || idB === 'Select Product B') {
-        if (result) result.innerHTML = '<div class="alert alert-info">Please select two products to compare</div>';
+/**
+ * ============================================
+ * AI VEGETABLE COMPARISON
+ * Connects directly to Python Flask API
+ * Running on http://localhost:5000
+ * ============================================
+ */
+
+async function runAICompare() {
+    const file1 = document.getElementById('file1');
+    const file2 = document.getElementById('file2');
+    const resultDiv = document.getElementById('aiResult');
+
+    // Check both images
+    if (!file1 || !file2 || !file1.files[0] || !file2.files[0]) {
+        alert('Please upload BOTH vegetable images first.');
         return;
     }
-    
-    const A = crops.find(c => c.id == idA);
-    const B = crops.find(c => c.id == idB);
-    if (!A || !B) return;
-    
-    const rows = [
-        ['Price (₹/q)', '₹' + A.price, '₹' + B.price],
-        ['Quality Grade', A.grade, B.grade],
-        ['Quantity (q)', A.qty, B.qty],
-        ['Seller Rating', A.rating + ' ⭐', B.rating + ' ⭐'],
-        ['Seller', A.seller, B.seller]
+
+    // Validate image types
+    const allowedTypes = [
+        'image/jpeg',
+        'image/jpg',
+        'image/png',
+        'image/webp'
     ];
-    
-    const scoreA = A.rating * 10 + (A.grade === 'A' ? 3 : 0);
-    const scoreB = B.rating * 10 + (B.grade === 'A' ? 3 : 0);
-    const best = scoreA >= scoreB ? A : B;
-    
-    result.innerHTML = `
-        <div class="table-responsive">
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th>Attribute</th>
-                        <th>${A.name} (${A.seller})</th>
-                        <th>${B.name} (${B.seller})</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${rows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('')}
-                </tbody>
-            </table>
-        </div>
-        <div class="alert alert-success">
-            <i class="bi bi-star-fill"></i> <strong>Recommendation:</strong> 
-            ${best.name} from ${best.seller} is the better option based on rating and quality grade.
+
+    if (!allowedTypes.includes(file1.files[0].type)) {
+        alert('Vegetable 1 must be JPG, PNG or WEBP.');
+        return;
+    }
+
+    if (!allowedTypes.includes(file2.files[0].type)) {
+        alert('Vegetable 2 must be JPG, PNG or WEBP.');
+        return;
+    }
+
+    // Maximum 5 MB
+    if (file1.files[0].size > 5 * 1024 * 1024) {
+        alert('Vegetable 1 image must be smaller than 5MB.');
+        return;
+    }
+
+    if (file2.files[0].size > 5 * 1024 * 1024) {
+        alert('Vegetable 2 image must be smaller than 5MB.');
+        return;
+    }
+
+    // Loading screen
+    resultDiv.innerHTML = `
+        <div class="text-center py-5">
+            <div class="spinner-border text-success"
+                 style="width:3rem;height:3rem;">
+            </div>
+
+            <p class="mt-3">
+                <strong>AI is comparing the vegetables...</strong>
+            </p>
+
+            <p class="small text-muted">
+                Connecting to AI server on port 5000
+            </p>
         </div>
     `;
+
+    // Create FormData
+    const formData = new FormData();
+
+    formData.append('image1', file1.files[0]);
+    formData.append('image2', file2.files[0]);
+
+    try {
+
+        /*
+         * ============================================
+         * PYTHON FLASK API
+         * ============================================
+         *
+         * Python server:
+         * http://localhost:5000
+         *
+         * API endpoint:
+         * POST /compare
+         */
+
+        const response = await fetch(
+            'http://localhost:5000/compare',
+            {
+                method: 'POST',
+                body: formData
+            }
+        );
+
+        // Check HTTP status
+        if (!response.ok) {
+            throw new Error(
+                `AI server returned HTTP ${response.status}`
+            );
+        }
+
+        const data = await response.json();
+
+        console.log('AI API Response:', data);
+
+        if (data.success) {
+
+            // Display dynamic AI results
+            displayAIResults(data.data);
+
+        } else {
+
+            resultDiv.innerHTML = `
+                <div class="alert alert-danger">
+
+                    <i class="bi bi-exclamation-triangle"></i>
+
+                    <strong>AI Comparison Failed</strong>
+
+                    <br>
+
+                    ${data.message || 'Unable to analyze images.'}
+
+                </div>
+            `;
+        }
+
+    } catch (error) {
+
+        console.error('AI Connection Error:', error);
+
+        resultDiv.innerHTML = `
+            <div class="alert alert-danger">
+
+                <i class="bi bi-wifi-off"></i>
+
+                <strong>Cannot connect to AI server</strong>
+
+                <p class="mb-1 mt-2">
+                    Make sure your Python API is running on:
+                </p>
+
+                <code>
+                    http://localhost:5000
+                </code>
+
+                <hr>
+
+                <strong>Possible reasons:</strong>
+
+                <ul class="mb-0">
+                    <li>Python server is not running</li>
+                    <li>Port 5000 is incorrect</li>
+                    <li>API endpoint is incorrect</li>
+                    <li>CORS is not enabled</li>
+                    <li>Flask server crashed</li>
+                </ul>
+
+                <small class="text-muted">
+                    Error: ${error.message}
+                </small>
+
+            </div>
+        `;
+    }
 }
 
 // ===== AI COMPARE =====
