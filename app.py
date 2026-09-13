@@ -1061,3 +1061,291 @@ if __name__ == "__main__":
         port=5000,
         debug=True
     )
+
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+import cv2
+import numpy as np
+
+app = Flask(__name__)
+
+CORS(app)
+
+
+def analyze_image(file):
+
+    # Read uploaded image
+    image_bytes = file.read()
+
+    image_array = np.frombuffer(
+        image_bytes,
+        np.uint8
+    )
+
+    image = cv2.imdecode(
+        image_array,
+        cv2.IMREAD_COLOR
+    )
+
+    if image is None:
+        raise ValueError("Invalid image")
+
+    # Resize
+    image = cv2.resize(
+        image,
+        (500, 500)
+    )
+
+    # Convert to HSV
+    hsv = cv2.cvtColor(
+        image,
+        cv2.COLOR_BGR2HSV
+    )
+
+    # Average brightness
+    brightness = float(
+        np.mean(hsv[:, :, 2])
+    )
+
+    # Saturation
+    saturation = float(
+        np.mean(hsv[:, :, 1])
+    )
+
+    # ------------------------------------------------
+    # BASIC DYNAMIC IMAGE QUALITY CALCULATION
+    # ------------------------------------------------
+
+    freshness_score = min(
+        100,
+        max(
+            0,
+            int(
+                50
+                + brightness * 0.35
+                + saturation * 0.25
+            )
+        )
+    )
+
+    color_score = min(
+        100,
+        max(
+            0,
+            int(
+                50
+                + saturation * 0.5
+            )
+        )
+    )
+
+    # Texture using Laplacian variance
+    gray = cv2.cvtColor(
+        image,
+        cv2.COLOR_BGR2GRAY
+    )
+
+    texture_value = cv2.Laplacian(
+        gray,
+        cv2.CV_64F
+    ).var()
+
+    texture_score = min(
+        100,
+        max(
+            0,
+            int(texture_value / 10)
+        )
+    )
+
+    # Simple defect estimation
+    dark_pixels = np.sum(
+        hsv[:, :, 2] < 40
+    )
+
+    total_pixels = (
+        hsv.shape[0] *
+        hsv.shape[1]
+    )
+
+    defect_ratio = (
+        dark_pixels /
+        total_pixels
+    )
+
+    defect_score = min(
+        100,
+        max(
+            0,
+            int(100 - defect_ratio * 100)
+        )
+    )
+
+    size_score = 80
+
+    overall_score = int(
+        freshness_score * 0.30 +
+        color_score * 0.20 +
+        texture_score * 0.20 +
+        defect_score * 0.20 +
+        size_score * 0.10
+    )
+
+    if overall_score >= 85:
+        grade = "A+"
+    elif overall_score >= 75:
+        grade = "A"
+    elif overall_score >= 65:
+        grade = "B"
+    elif overall_score >= 50:
+        grade = "C"
+    else:
+        grade = "D"
+
+    shelf_life = max(
+        1,
+        int(overall_score / 12)
+    )
+
+    return {
+        "overall_score": overall_score,
+        "freshness_score": freshness_score,
+        "color_score": color_score,
+        "texture_score": texture_score,
+        "defect_score": defect_score,
+        "size_score": size_score,
+        "quality_grade": grade,
+        "estimated_shelf_life_days": shelf_life
+    }
+
+
+@app.route("/")
+def home():
+
+    return jsonify({
+        "success": True,
+        "message": "MandiMart AI API is running"
+    })
+
+
+@app.route("/compare", methods=["POST"])
+def compare():
+
+    try:
+
+        image1 = request.files.get("image1")
+        image2 = request.files.get("image2")
+
+        if image1 is None or image2 is None:
+
+            return jsonify({
+                "success": False,
+                "message": "Both images are required."
+            }), 400
+
+        result1 = analyze_image(image1)
+        result2 = analyze_image(image2)
+
+        score1 = result1["overall_score"]
+        score2 = result2["overall_score"]
+
+        if score1 > score2:
+
+            winner = 1
+            winner_name = "Vegetable 1"
+
+        elif score2 > score1:
+
+            winner = 2
+            winner_name = "Vegetable 2"
+
+        else:
+
+            winner = 0
+            winner_name = "Both vegetables"
+
+        margin = abs(
+            score1 - score2
+        )
+
+        if winner == 1:
+
+            recommendation = (
+                "Vegetable 1 has better overall "
+                "quality and freshness."
+            )
+
+        elif winner == 2:
+
+            recommendation = (
+                "Vegetable 2 has better overall "
+                "quality and freshness."
+            )
+
+        else:
+
+            recommendation = (
+                "Both vegetables have similar "
+                "overall quality."
+            )
+
+        return jsonify({
+
+            "success": True,
+
+            "data": {
+
+                "vegetable_1": result1,
+
+                "vegetable_2": result2,
+
+                "winner": winner,
+
+                "winner_name": winner_name,
+
+                "margin": margin,
+
+                "recommendation": recommendation,
+
+                "market_value":
+                    f"{winner_name} is likely to "
+                    "receive a better market price.",
+
+                "summary": {
+
+                    "key_differences": [
+                        f"Vegetable 1 score: {score1}",
+                        f"Vegetable 2 score: {score2}",
+                        f"Quality difference: {margin} points"
+                    ],
+
+                    "buyer_advice":
+                        f"Choose {winner_name} "
+                        "for better quality."
+
+                }
+
+            }
+
+        })
+
+    except Exception as e:
+
+        print("ERROR:", str(e))
+
+        return jsonify({
+
+            "success": False,
+
+            "message": str(e)
+
+        }), 500
+
+
+if __name__ == "__main__":
+
+    app.run(
+        host="0.0.0.0",
+        port=5000,
+        debug=True
+    )
