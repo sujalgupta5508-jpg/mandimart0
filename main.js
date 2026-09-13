@@ -993,6 +993,161 @@ function resetComparison() {
     });
 }
 
+// ===============================
+// MANDIMART AI COMPARISON API
+// ===============================
+
+// LOCAL TESTING
+const API_BASE_URL = "http://localhost:5000";
+
+// AFTER DEPLOYING PYTHON BACKEND:
+// const API_BASE_URL = "https://your-backend-url.onrender.com";
+
+
+function loadImage(inputId, previewId) {
+    const input = document.getElementById(inputId);
+    const preview = document.getElementById(previewId);
+
+    if (!input || !preview) return;
+
+    const file = input.files[0];
+
+    if (!file) {
+        preview.style.display = "none";
+        preview.src = "";
+        return;
+    }
+
+    if (!file.type.startsWith("image/")) {
+        alert("Please select a valid image.");
+        input.value = "";
+        return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+        alert("Image must be smaller than 5 MB.");
+        input.value = "";
+        return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = function (e) {
+        preview.src = e.target.result;
+        preview.style.display = "block";
+    };
+
+    reader.readAsDataURL(file);
+}
+
+
+async function runAICompare() {
+
+    const file1Input = document.getElementById("file1");
+    const file2Input = document.getElementById("file2");
+    const resultBox = document.getElementById("aiResult");
+
+    if (!file1Input || !file2Input || !resultBox) {
+        console.error("AI comparison elements not found.");
+        return;
+    }
+
+    const file1 = file1Input.files[0];
+    const file2 = file2Input.files[0];
+
+    // Check images
+    if (!file1 || !file2) {
+        alert("Please upload both vegetable images.");
+        return;
+    }
+
+    if (!file1.type.startsWith("image/") ||
+        !file2.type.startsWith("image/")) {
+
+        alert("Both files must be images.");
+        return;
+    }
+
+    // 5 MB limit
+    if (file1.size > 5 * 1024 * 1024 ||
+        file2.size > 5 * 1024 * 1024) {
+
+        alert("Each image must be smaller than 5 MB.");
+        return;
+    }
+
+    // Loading message
+    resultBox.innerHTML = `
+        <div class="ai-loading">
+            <h3>🤖 AI is analyzing the vegetables...</h3>
+            <p>Please wait while MandiMart compares freshness, color, texture and defects.</p>
+        </div>
+    `;
+
+    try {
+
+        const formData = new FormData();
+
+        formData.append("image1", file1);
+        formData.append("image2", file2);
+
+        console.log("Sending images to:", API_BASE_URL + "/compare");
+
+        const response = await fetch(
+            `${API_BASE_URL}/compare`,
+            {
+                method: "POST",
+                body: formData
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error(
+                `Server returned ${response.status}`
+            );
+        }
+
+        const result = await response.json();
+
+        console.log("AI API response:", result);
+
+        if (!result.success) {
+            throw new Error(
+                result.message || "AI comparison failed."
+            );
+        }
+
+        // Display AI results
+        displayAIResults(result.data);
+
+    } catch (error) {
+
+        console.error("AI Comparison Error:", error);
+
+        resultBox.innerHTML = `
+            <div class="ai-error">
+                <h3>❌ AI comparison failed</h3>
+
+                <p>
+                    Could not connect to the MandiMart AI server.
+                </p>
+
+                <p>
+                    Make sure your Python backend is running on:
+                </p>
+
+                <code>${API_BASE_URL}</code>
+
+                <br><br>
+
+                <button onclick="runAICompare()">
+                    🔄 Try Again
+                </button>
+            </div>
+        `;
+    }
+}
+
 // Add CSS for winner styling
 const winnerStyles = document.createElement('style');
 winnerStyles.textContent = `
