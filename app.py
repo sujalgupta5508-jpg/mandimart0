@@ -442,133 +442,614 @@ if __name__ == '__main__':
 
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+
+import cv2
+import numpy as np
+
 from PIL import Image
-import os
+import io
+
 
 app = Flask(__name__)
 CORS(app)
 
-UPLOAD_FOLDER = "uploads"
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-@app.route("/", methods=["GET"])
-def home():
-    return jsonify({
-        "success": True,
-        "message": "MandiMart AI API is running",
-        "port": 5000
-    })
+# =====================================================
+# IMAGE LOADER
+# =====================================================
+
+def load_image(file):
+
+    data = file.read()
+
+    image = Image.open(
+        io.BytesIO(data)
+    ).convert("RGB")
+
+    image = np.array(image)
+
+    # RGB -> BGR for OpenCV
+    image = cv2.cvtColor(
+        image,
+        cv2.COLOR_RGB2BGR
+    )
+
+    return image
 
 
-@app.route("/compare", methods=["POST"])
+# =====================================================
+# COLOR ANALYSIS
+# =====================================================
+
+def analyze_color(image):
+
+    hsv = cv2.cvtColor(
+        image,
+        cv2.COLOR_BGR2HSV
+    )
+
+    saturation = np.mean(
+        hsv[:, :, 1]
+    )
+
+    brightness = np.mean(
+        hsv[:, :, 2]
+    )
+
+    # Healthy vegetables generally have
+    # reasonable saturation and brightness.
+
+    saturation_score = min(
+        100,
+        max(
+            0,
+            saturation / 2.55
+        )
+    )
+
+    brightness_score = 100 - abs(
+        brightness - 140
+    ) / 1.4
+
+    brightness_score = min(
+        100,
+        max(
+            0,
+            brightness_score
+        )
+    )
+
+    color_score = (
+        saturation_score * 0.6
+        +
+        brightness_score * 0.4
+    )
+
+    return round(color_score, 2)
+
+
+# =====================================================
+# TEXTURE ANALYSIS
+# =====================================================
+
+def analyze_texture(image):
+
+    gray = cv2.cvtColor(
+        image,
+        cv2.COLOR_BGR2GRAY
+    )
+
+    # Laplacian variance measures
+    # image texture/detail/sharpness.
+
+    variance = cv2.Laplacian(
+        gray,
+        cv2.CV_64F
+    ).var()
+
+    texture_score = min(
+        100,
+        max(
+            0,
+            variance / 10
+        )
+    )
+
+    return round(texture_score, 2)
+
+
+# =====================================================
+# DEFECT ANALYSIS
+# =====================================================
+
+def analyze_defects(image):
+
+    hsv = cv2.cvtColor(
+        image,
+        cv2.COLOR_BGR2HSV
+    )
+
+    # Detect dark/brown/black regions.
+    #
+    # These can represent bruises,
+    # damaged areas or visible defects.
+
+    lower = np.array(
+        [0, 0, 0]
+    )
+
+    upper = np.array(
+        [180, 255, 80]
+    )
+
+    mask = cv2.inRange(
+        hsv,
+        lower,
+        upper
+    )
+
+    total_pixels = mask.shape[0] * mask.shape[1]
+
+    defect_pixels = np.count_nonzero(mask)
+
+    defect_percentage = (
+        defect_pixels /
+        total_pixels
+    ) * 100
+
+    defect_score = 100 - (
+        defect_percentage * 4
+    )
+
+    defect_score = min(
+        100,
+        max(
+            0,
+            defect_score
+        )
+    )
+
+    return round(defect_score, 2)
+
+
+# =====================================================
+# SIZE / SHAPE ANALYSIS
+# =====================================================
+
+def analyze_shape(image):
+
+    gray = cv2.cvtColor(
+        image,
+        cv2.COLOR_BGR2GRAY
+    )
+
+    blurred = cv2.GaussianBlur(
+        gray,
+        (5, 5),
+        0
+    )
+
+    _, threshold = cv2.threshold(
+        blurred,
+        0,
+        255,
+        cv2.THRESH_BINARY +
+        cv2.THRESH_OTSU
+    )
+
+    contours, _ = cv2.findContours(
+        threshold,
+        cv2.RETR_EXTERNAL,
+        cv2.CHAIN_APPROX_SIMPLE
+    )
+
+    if not contours:
+        return 50
+
+    largest = max(
+        contours,
+        key=cv2.contourArea
+    )
+
+    area = cv2.contourArea(
+        largest
+    )
+
+    perimeter = cv2.arcLength(
+        largest,
+        True
+    )
+
+    if perimeter == 0:
+        return 50
+
+    circularity = (
+        4 * np.pi * area
+    ) / (
+        perimeter * perimeter
+    )
+
+    # More regular shapes get a higher score.
+    shape_score = min(
+        100,
+        circularity * 100
+    )
+
+    return round(
+        shape_score,
+        2
+    )
+
+
+# =====================================================
+# FRESHNESS
+# =====================================================
+
+def calculate_freshness(
+    color,
+    texture,
+    defects
+):
+
+    freshness = (
+        color * 0.40
+        +
+        texture * 0.25
+        +
+        defects * 0.35
+    )
+
+    return round(
+        min(100, max(0, freshness)),
+        2
+    )
+
+
+# =====================================================
+# OVERALL QUALITY
+# =====================================================
+
+def analyze_image(image):
+
+    color = analyze_color(
+        image
+    )
+
+    texture = analyze_texture(
+        image
+    )
+
+    defects = analyze_defects(
+        image
+    )
+
+    shape = analyze_shape(
+        image
+    )
+
+    freshness = calculate_freshness(
+        color,
+        texture,
+        defects
+    )
+
+    overall = (
+        freshness * 0.35
+        +
+        color * 0.20
+        +
+        texture * 0.15
+        +
+        defects * 0.20
+        +
+        shape * 0.10
+    )
+
+    overall = round(
+        min(100, max(0, overall)),
+        2
+    )
+
+    # Dynamic grade
+    if overall >= 90:
+        grade = "A+"
+    elif overall >= 80:
+        grade = "A"
+    elif overall >= 70:
+        grade = "B"
+    elif overall >= 60:
+        grade = "C"
+    elif overall >= 50:
+        grade = "D"
+    else:
+        grade = "F"
+
+    # Estimated shelf life
+    shelf_life = max(
+        1,
+        round(
+            overall / 14
+        )
+    )
+
+    return {
+        "freshness_score": freshness,
+        "color_score": color,
+        "texture_score": texture,
+        "defect_score": defects,
+        "size_score": shape,
+        "overall_score": overall,
+        "quality_grade": grade,
+        "estimated_shelf_life_days": shelf_life
+    }
+
+
+# =====================================================
+# COMPARE TWO IMAGES
+# =====================================================
+
+@app.route(
+    "/compare",
+    methods=["POST"]
+)
 def compare():
-
-    if "image1" not in request.files or "image2" not in request.files:
-        return jsonify({
-            "success": False,
-            "message": "Both images are required"
-        }), 400
-
-    image1 = request.files["image1"]
-    image2 = request.files["image2"]
 
     try:
 
-        # Open images
-        img1 = Image.open(image1)
-        img2 = Image.open(image2)
+        if (
+            "image1" not in request.files
+            or
+            "image2" not in request.files
+        ):
 
-        print("Image 1:", img1.size)
-        print("Image 2:", img2.size)
+            return jsonify({
+                "success": False,
+                "message":
+                    "Please upload two images."
+            }), 400
 
-        # ==========================================
-        # YOUR AI / OPENCV MODEL GOES HERE
-        # ==========================================
 
-        # Temporary test values
-        vegetable_1 = {
-            "freshness_score": 92,
-            "color_score": 90,
-            "texture_score": 88,
-            "defect_score": 94,
-            "size_score": 91,
-            "overall_score": 91,
-            "quality_grade": "A",
-            "estimated_shelf_life_days": 7
-        }
+        file1 = request.files["image1"]
+        file2 = request.files["image2"]
 
-        vegetable_2 = {
-            "freshness_score": 78,
-            "color_score": 80,
-            "texture_score": 75,
-            "defect_score": 72,
-            "size_score": 82,
-            "overall_score": 77,
-            "quality_grade": "B",
-            "estimated_shelf_life_days": 4
-        }
 
-        score1 = vegetable_1["overall_score"]
-        score2 = vegetable_2["overall_score"]
+        # Load actual uploaded images
 
-        if score1 >= score2:
+        image1 = load_image(
+            file1
+        )
+
+        image2 = load_image(
+            file2
+        )
+
+
+        # Analyze ACTUAL images
+
+        vegetable1 = analyze_image(
+            image1
+        )
+
+        vegetable2 = analyze_image(
+            image2
+        )
+
+
+        score1 = vegetable1[
+            "overall_score"
+        ]
+
+        score2 = vegetable2[
+            "overall_score"
+        ]
+
+
+        # =================================================
+        # DYNAMIC WINNER
+        # =================================================
+
+        if score1 > score2:
+
             winner = 1
             winner_name = "Vegetable 1"
-            margin = score1 - score2
-        else:
+
+        elif score2 > score1:
+
             winner = 2
             winner_name = "Vegetable 2"
-            margin = score2 - score1
+
+        else:
+
+            winner = 0
+            winner_name = "Tie"
+
+
+        margin = round(
+            abs(score1 - score2),
+            2
+        )
+
+
+        # =================================================
+        # DYNAMIC RECOMMENDATION
+        # =================================================
+
+        if winner == 1:
+
+            recommendation = (
+                "Vegetable 1 is recommended because "
+                "it has the higher overall quality score."
+            )
+
+        elif winner == 2:
+
+            recommendation = (
+                "Vegetable 2 is recommended because "
+                "it has the higher overall quality score."
+            )
+
+        else:
+
+            recommendation = (
+                "Both vegetables have very similar "
+                "quality scores."
+            )
+
+
+        # =================================================
+        # DYNAMIC DIFFERENCES
+        # =================================================
+
+        differences = []
+
+        if vegetable1["freshness_score"] > vegetable2["freshness_score"]:
+
+            differences.append(
+                "Vegetable 1 has better freshness."
+            )
+
+        elif vegetable2["freshness_score"] > vegetable1["freshness_score"]:
+
+            differences.append(
+                "Vegetable 2 has better freshness."
+            )
+
+
+        if vegetable1["color_score"] > vegetable2["color_score"]:
+
+            differences.append(
+                "Vegetable 1 has better color characteristics."
+            )
+
+        elif vegetable2["color_score"] > vegetable1["color_score"]:
+
+            differences.append(
+                "Vegetable 2 has better color characteristics."
+            )
+
+
+        if vegetable1["defect_score"] > vegetable2["defect_score"]:
+
+            differences.append(
+                "Vegetable 1 shows fewer visible defects."
+            )
+
+        elif vegetable2["defect_score"] > vegetable1["defect_score"]:
+
+            differences.append(
+                "Vegetable 2 shows fewer visible defects."
+            )
+
+
+        if vegetable1["texture_score"] > vegetable2["texture_score"]:
+
+            differences.append(
+                "Vegetable 1 has stronger texture/detail characteristics."
+            )
+
+        elif vegetable2["texture_score"] > vegetable1["texture_score"]:
+
+            differences.append(
+                "Vegetable 2 has stronger texture/detail characteristics."
+            )
+
+
+        # =================================================
+        # RESPONSE
+        # =================================================
 
         return jsonify({
+
             "success": True,
 
             "data": {
-                "vegetable_1": vegetable_1,
-                "vegetable_2": vegetable_2,
+
+                "vegetable_1": vegetable1,
+
+                "vegetable_2": vegetable2,
 
                 "winner": winner,
+
                 "winner_name": winner_name,
+
                 "margin": margin,
 
                 "recommendation":
-                    f"{winner_name} is recommended because it has a higher overall quality score.",
+                    recommendation,
 
                 "market_value":
-                    "Higher-quality vegetables may receive a better market price.",
+                    "Higher quality produce may receive a better market price.",
 
                 "summary": {
-                    "key_differences": [
-                        f"Vegetable 1 overall score: {score1}/100",
-                        f"Vegetable 2 overall score: {score2}/100",
-                        f"{winner_name} has the higher quality score."
-                    ],
+
+                    "key_differences":
+                        differences,
+
                     "buyer_advice":
-                        f"Choose {winner_name} for better overall quality."
+                        recommendation
                 },
 
                 "note":
-                    "AI analysis is an automated estimate and should be verified visually."
+                    "Scores are computer-vision estimates based on the uploaded images."
             }
+
         })
+
 
     except Exception as e:
 
-        print("ERROR:", str(e))
+        print(
+            "Comparison error:",
+            str(e)
+        )
 
         return jsonify({
+
             "success": False,
-            "message": str(e)
+
+            "message":
+                "Image analysis failed: "
+                + str(e)
+
         }), 500
 
 
+# =====================================================
+# HOME / HEALTH CHECK
+# =====================================================
+
+@app.route("/")
+def home():
+
+    return jsonify({
+
+        "success": True,
+
+        "service":
+            "MandiMart Dynamic AI Comparison API",
+
+        "status":
+            "running",
+
+        "endpoint":
+            "/compare"
+
+    })
+
+
+# =====================================================
+# START SERVER
+# =====================================================
+
 if __name__ == "__main__":
-    print("===================================")
-    print(" MandiMart AI API")
-    print("===================================")
-    print("Running at:")
-    print("http://localhost:5000")
-    print("===================================")
+
+    print(
+        "\n🌾 MandiMart Dynamic AI API"
+    )
+
+    print(
+        "🚀 http://localhost:5000"
+    )
 
     app.run(
         host="0.0.0.0",
