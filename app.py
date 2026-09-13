@@ -19,6 +19,8 @@ import json
 from datetime import datetime
 import compare_engine  # Our comparison logic module
 
+
+
 # Flask App Configuration
 app = Flask(__name__)
 CORS(app)  # Enable Cross-Origin for PHP frontend
@@ -436,4 +438,140 @@ if __name__ == '__main__':
         port=5000,
         debug=True,
         threaded=True
+    )
+
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+from PIL import Image
+import os
+
+app = Flask(__name__)
+CORS(app)
+
+UPLOAD_FOLDER = "uploads"
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+@app.route("/", methods=["GET"])
+def home():
+    return jsonify({
+        "success": True,
+        "message": "MandiMart AI API is running",
+        "port": 5000
+    })
+
+
+@app.route("/compare", methods=["POST"])
+def compare():
+
+    if "image1" not in request.files or "image2" not in request.files:
+        return jsonify({
+            "success": False,
+            "message": "Both images are required"
+        }), 400
+
+    image1 = request.files["image1"]
+    image2 = request.files["image2"]
+
+    try:
+
+        # Open images
+        img1 = Image.open(image1)
+        img2 = Image.open(image2)
+
+        print("Image 1:", img1.size)
+        print("Image 2:", img2.size)
+
+        # ==========================================
+        # YOUR AI / OPENCV MODEL GOES HERE
+        # ==========================================
+
+        # Temporary test values
+        vegetable_1 = {
+            "freshness_score": 92,
+            "color_score": 90,
+            "texture_score": 88,
+            "defect_score": 94,
+            "size_score": 91,
+            "overall_score": 91,
+            "quality_grade": "A",
+            "estimated_shelf_life_days": 7
+        }
+
+        vegetable_2 = {
+            "freshness_score": 78,
+            "color_score": 80,
+            "texture_score": 75,
+            "defect_score": 72,
+            "size_score": 82,
+            "overall_score": 77,
+            "quality_grade": "B",
+            "estimated_shelf_life_days": 4
+        }
+
+        score1 = vegetable_1["overall_score"]
+        score2 = vegetable_2["overall_score"]
+
+        if score1 >= score2:
+            winner = 1
+            winner_name = "Vegetable 1"
+            margin = score1 - score2
+        else:
+            winner = 2
+            winner_name = "Vegetable 2"
+            margin = score2 - score1
+
+        return jsonify({
+            "success": True,
+
+            "data": {
+                "vegetable_1": vegetable_1,
+                "vegetable_2": vegetable_2,
+
+                "winner": winner,
+                "winner_name": winner_name,
+                "margin": margin,
+
+                "recommendation":
+                    f"{winner_name} is recommended because it has a higher overall quality score.",
+
+                "market_value":
+                    "Higher-quality vegetables may receive a better market price.",
+
+                "summary": {
+                    "key_differences": [
+                        f"Vegetable 1 overall score: {score1}/100",
+                        f"Vegetable 2 overall score: {score2}/100",
+                        f"{winner_name} has the higher quality score."
+                    ],
+                    "buyer_advice":
+                        f"Choose {winner_name} for better overall quality."
+                },
+
+                "note":
+                    "AI analysis is an automated estimate and should be verified visually."
+            }
+        })
+
+    except Exception as e:
+
+        print("ERROR:", str(e))
+
+        return jsonify({
+            "success": False,
+            "message": str(e)
+        }), 500
+
+
+if __name__ == "__main__":
+    print("===================================")
+    print(" MandiMart AI API")
+    print("===================================")
+    print("Running at:")
+    print("http://localhost:5000")
+    print("===================================")
+
+    app.run(
+        host="0.0.0.0",
+        port=5000,
+        debug=True
     )
