@@ -297,6 +297,198 @@ function renderAuctions() {
 }
 
 // ===== PRODUCT COMPARISON =====
+// ============================================
+// PRODUCT COMPARISON
+// ============================================
+
+function populateCompare() {
+
+    const selectA = document.getElementById('compA');
+    const selectB = document.getElementById('compB');
+
+    if (!selectA || !selectB) {
+        console.error('Comparison dropdowns not found');
+        return;
+    }
+
+    // Create product options
+    const options = crops.map(c => `
+        <option value="${c.id}">
+            ${c.name} — ${c.seller}
+        </option>
+    `).join('');
+
+    selectA.innerHTML = `
+        <option value="">Select Product A</option>
+        ${options}
+    `;
+
+    selectB.innerHTML = `
+        <option value="">Select Product B</option>
+        ${options}
+    `;
+
+    // Default Product B = second product
+    if (crops.length > 1) {
+        selectB.value = crops[1].id;
+    }
+
+    // IMPORTANT:
+    // Run comparison whenever either dropdown changes
+    selectA.addEventListener('change', compareProducts);
+    selectB.addEventListener('change', compareProducts);
+
+    // Initial state
+    compareProducts();
+}
+
+
+function compareProducts() {
+
+    const selectA = document.getElementById('compA');
+    const selectB = document.getElementById('compB');
+    const result = document.getElementById('compareResult');
+
+    if (!selectA || !selectB || !result) {
+        console.error('Comparison HTML elements are missing');
+        return;
+    }
+
+    const idA = selectA.value;
+    const idB = selectB.value;
+
+    // Nothing selected
+    if (!idA || !idB) {
+
+        result.innerHTML = `
+            <div class="alert alert-info text-center">
+                Please select two products to compare.
+            </div>
+        `;
+
+        return;
+    }
+
+    // Find products
+    const A = crops.find(c => String(c.id) === String(idA));
+    const B = crops.find(c => String(c.id) === String(idB));
+
+    if (!A || !B) {
+
+        result.innerHTML = `
+            <div class="alert alert-danger">
+                Product data could not be found.
+            </div>
+        `;
+
+        return;
+    }
+
+    // Don't compare same product
+    if (A.id === B.id) {
+
+        result.innerHTML = `
+            <div class="alert alert-warning text-center">
+                Please select two different products.
+            </div>
+        `;
+
+        return;
+    }
+
+    // Comparison rows
+    const rows = [
+        ['Price (₹/q)', `₹${A.price}`, `₹${B.price}`],
+        ['Quality Grade', A.grade, B.grade],
+        ['Quantity (q)', A.qty, B.qty],
+        ['Seller Rating', `${A.rating} ⭐`, `${B.rating} ⭐`],
+        ['Seller', A.seller, B.seller]
+    ];
+
+    // Calculate score
+    const scoreA =
+        Number(A.rating) * 10 +
+        (A.grade === 'A' ? 3 : 0);
+
+    const scoreB =
+        Number(B.rating) * 10 +
+        (B.grade === 'A' ? 3 : 0);
+
+    const best = scoreA >= scoreB ? A : B;
+
+    // Display comparison
+    result.innerHTML = `
+
+        <div class="card shadow-sm border-0">
+
+            <div class="card-header bg-success text-white text-center">
+                <h4 class="mb-0">
+                    ${A.name} vs ${B.name}
+                </h4>
+            </div>
+
+            <div class="card-body">
+
+                <div class="table-responsive">
+
+                    <table class="table table-bordered table-hover text-center">
+
+                        <thead class="table-light">
+
+                            <tr>
+                                <th>Attribute</th>
+                                <th>
+                                    ${A.name}<br>
+                                    <small>${A.seller}</small>
+                                </th>
+                                <th>
+                                    ${B.name}<br>
+                                    <small>${B.seller}</small>
+                                </th>
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            ${rows.map(row => `
+                                <tr>
+                                    <th>${row[0]}</th>
+                                    <td>${row[1]}</td>
+                                    <td>${row[2]}</td>
+                                </tr>
+                            `).join('')}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+                <div class="alert alert-success text-center mt-4">
+
+                    🏆 <strong>Recommended Product</strong>
+
+                    <br>
+
+                    <span class="fs-5">
+                        ${best.name} from ${best.seller}
+                    </span>
+
+                    <br>
+
+                    <small>
+                        Based on seller rating and quality grade.
+                    </small>
+
+                </div>
+
+            </div>
+
+        </div>
+    `;
+}
+
 function populateCompare() {
     const selectA = document.getElementById('compA');
     const selectB = document.getElementById('compB');
