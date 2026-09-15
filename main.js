@@ -484,20 +484,7 @@ function compareProducts() {
     `;
 }
 
-function populateCompare() {
-    const selectA = document.getElementById('compA');
-    const selectB = document.getElementById('compB');
-    if (!selectA || !selectB) return;
-    
-    const options = crops.map(c => `<option value="${c.id}">${c.name} — ${c.seller}</option>`).join('');
-    selectA.innerHTML = '<option>Select Product A</option>' + options;
-    selectB.innerHTML = '<option>Select Product B</option>' + options;
-    
-    if (crops.length > 1) {
-        selectB.selectedIndex = 2;
-    }
-    compareProducts();
-}
+
 
 /**
  * ============================================
