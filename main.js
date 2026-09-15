@@ -103,7 +103,11 @@ function renderCrops() {
                         <button class="btn btn-sm btn-mandi" onclick="contactSeller('${c.seller}')">
                             <i class="bi bi-chat"></i> Contact
                         </button>
-                        <button class="btn btn-sm btn-outline-mandi" onclick="placeOrder('${c.name}')">Buy</button>
+                        <button 
+    class="btn btn-sm btn-outline-mandi"
+    onclick="placeOrderById(${c.id})">
+    🛒 Buy
+</button>
                     </div>
                 </div>
             </div>
