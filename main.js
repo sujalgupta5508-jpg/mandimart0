@@ -22,7 +22,8 @@ let mandis = [
 let crops = [
     {id:1, name:'Tomato', qty:50, grade:'A', price:1500, img:'🍅', seller:'Ramesh Kumar', rating:4.8},
     {id:2, name:'Onion', qty:120, grade:'B', price:2250, img:'🧅', seller:'Sunita Devi', rating:4.5},
-    {id:3, name:'Potato', qty:200, grade:'A', price:1650, img:'🥔', seller:'Gurpreet Singh', rating:4.9}
+    {id:3, name:'Potato', qty:200, grade:'A', price:1650, img:'🥔', seller:'Gurpreet Singh', rating:4.9},
+    {id:4,name:'Tomato', qty:100, grade:'B', price:1500 , img:'🍅',seller:'Sujal Gupta', rating:5.0}
 ];
 
 let auctions = [];
