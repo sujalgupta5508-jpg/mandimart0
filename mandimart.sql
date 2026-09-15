@@ -197,8 +197,7 @@ INSERT INTO mandi_prices (crop_name, mandi_name, state, min_price, max_price, mo
 INSERT INTO crops (farmer_id, name, quantity, grade, price_per_q, description, status) VALUES
 (1, 'Tomato', 50, 'A', 1500, 'Fresh organic tomatoes, hand-picked', 'available'),
 (2, 'Onion', 120, 'B', 2250, 'Red onions, good for storage', 'unavailable'),
-(3, 'Potato', 200, 'A', 1650, 'Premium Kufri potatoes', 'available'),
-(4,'Tomato',100,'B',1500,'Fresh tomatoes,machined-picked','available');
+(3, 'Potato', 200, 'A', 1650, 'Premium Kufri potatoes', 'available');
 
 -- Sample Auctions
 INSERT INTO auctions (farmer_id, crop_name, quantity, base_price, current_price, bid_increment, end_time, status, total_bids) VALUES
