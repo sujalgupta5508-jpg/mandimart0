@@ -494,163 +494,407 @@ function compareProducts() {
  * ============================================
  */
 
-async function runAICompare() {
-    const file1 = document.getElementById('file1');
-    const file2 = document.getElementById('file2');
-    const resultDiv = document.getElementById('aiResult');
+// ============================================================
+// MANDIMART AI VEGETABLE COMPARISON
+// ============================================================
 
-    // Check both images
-    if (!file1 || !file2 || !file1.files[0] || !file2.files[0]) {
-        alert('Please upload BOTH vegetable images first.');
+// IMPORTANT:
+// Replace this with your Codespaces forwarded port-5000 URL.
+//
+// Example:
+// https://abcde-5000.app.github.dev
+//
+const API_BASE_URL = "YOUR_CODESPACE_PORT_5000_URL";
+
+
+// ============================================================
+// IMAGE PREVIEW
+// ============================================================
+
+function loadImage(inputId, previewId, dropZoneId) {
+
+    const input = document.getElementById(inputId);
+    const preview = document.getElementById(previewId);
+    const dropZone = dropZoneId
+        ? document.getElementById(dropZoneId)
+        : null;
+
+    if (!input || !preview) {
+        console.error("Image elements not found:", inputId, previewId);
         return;
     }
 
-    // Validate image types
-    const allowedTypes = [
-        'image/jpeg',
-        'image/jpg',
-        'image/png',
-        'image/webp'
-    ];
+    const file = input.files[0];
 
-    if (!allowedTypes.includes(file1.files[0].type)) {
-        alert('Vegetable 1 must be JPG, PNG or WEBP.');
+    if (!file) {
+        preview.src = "";
+        preview.style.display = "none";
         return;
     }
 
-    if (!allowedTypes.includes(file2.files[0].type)) {
-        alert('Vegetable 2 must be JPG, PNG or WEBP.');
+    // Validate image
+    if (!file.type.startsWith("image/")) {
+
+        alert("Please select a valid image.");
+
+        input.value = "";
+        preview.src = "";
+        preview.style.display = "none";
+
         return;
     }
 
     // Maximum 5 MB
-    if (file1.files[0].size > 5 * 1024 * 1024) {
-        alert('Vegetable 1 image must be smaller than 5MB.');
+    if (file.size > 5 * 1024 * 1024) {
+
+        alert("Image must be smaller than 5 MB.");
+
+        input.value = "";
+        preview.src = "";
+        preview.style.display = "none";
+
         return;
     }
 
-    if (file2.files[0].size > 5 * 1024 * 1024) {
-        alert('Vegetable 2 image must be smaller than 5MB.');
+    // Show preview
+    const reader = new FileReader();
+
+    reader.onload = function(event) {
+
+        preview.src = event.target.result;
+        preview.style.display = "block";
+
+        if (dropZone) {
+
+            dropZone.classList.add("has-image");
+
+            const icon = dropZone.querySelector(".upload-icon");
+
+            if (icon) {
+                icon.style.display = "none";
+            }
+        }
+    };
+
+    reader.readAsDataURL(file);
+}
+
+
+// ============================================================
+// AI VEGETABLE COMPARISON
+// ============================================================
+
+async function runAICompare() {
+
+    const file1Input = document.getElementById("file1");
+    const file2Input = document.getElementById("file2");
+    const resultBox = document.getElementById("aiResult");
+
+    if (!file1Input || !file2Input || !resultBox) {
+
+        console.error("AI comparison HTML elements not found.");
+
         return;
     }
 
-    // Loading screen
-    resultDiv.innerHTML = `
+
+    const file1 = file1Input.files[0];
+    const file2 = file2Input.files[0];
+
+
+    // --------------------------------------------------------
+    // Validate images
+    // --------------------------------------------------------
+
+    if (!file1 || !file2) {
+
+        alert("Please upload BOTH vegetable images first.");
+
+        return;
+    }
+
+
+    if (!file1.type.startsWith("image/") ||
+        !file2.type.startsWith("image/")) {
+
+        alert("Both files must be valid images.");
+
+        return;
+    }
+
+
+    if (file1.size > 5 * 1024 * 1024 ||
+        file2.size > 5 * 1024 * 1024) {
+
+        alert("Each image must be smaller than 5 MB.");
+
+        return;
+    }
+
+
+    // --------------------------------------------------------
+    // Check API URL
+    // --------------------------------------------------------
+
+    if (
+        !API_BASE_URL ||
+        API_BASE_URL.includes("YOUR_CODESPACE")
+    ) {
+
+        resultBox.innerHTML = `
+            <div class="alert alert-warning">
+
+                <h5>⚠️ Backend URL not configured</h5>
+
+                <p>
+                    Please add your Codespaces port 5000 URL
+                    inside <code>API_BASE_URL</code> in main.js.
+                </p>
+
+                <p class="mb-0">
+                    Example:
+                    <br>
+                    <code>
+                    https://xxxxx-5000.app.github.dev
+                    </code>
+                </p>
+
+            </div>
+        `;
+
+        return;
+    }
+
+
+    // --------------------------------------------------------
+    // Loading
+    // --------------------------------------------------------
+
+    resultBox.innerHTML = `
         <div class="text-center py-5">
-            <div class="spinner-border text-success"
-                 style="width:3rem;height:3rem;">
+
+            <div
+                class="spinner-border text-success"
+                style="width:3rem;height:3rem;">
             </div>
 
-            <p class="mt-3">
-                <strong>AI is comparing the vegetables...</strong>
+            <h5 class="mt-3">
+                🤖 AI is analyzing the vegetables...
+            </h5>
+
+            <p class="text-muted">
+                Comparing freshness, color, texture,
+                defects and overall quality.
             </p>
 
             <p class="small text-muted">
-                Connecting to AI server on port 5000
+                Please wait...
             </p>
+
         </div>
     `;
 
-    // Create FormData
+
+    // --------------------------------------------------------
+    // FormData
+    // --------------------------------------------------------
+
     const formData = new FormData();
 
-    formData.append('image1', file1.files[0]);
-    formData.append('image2', file2.files[0]);
+    formData.append("image1", file1);
+    formData.append("image2", file2);
+
+
+    // --------------------------------------------------------
+    // Correct Flask API endpoint
+    // --------------------------------------------------------
+
+    const API_URL =
+        `${API_BASE_URL}/api/compare-vegetables`;
+
+
+    console.log("====================================");
+    console.log("MandiMart AI Request");
+    console.log("API:", API_URL);
+    console.log("Image 1:", file1.name);
+    console.log("Image 2:", file2.name);
+    console.log("====================================");
+
 
     try {
 
-        /*
-         * ============================================
-         * PYTHON FLASK API
-         * ============================================
-         *
-         * Python server:
-         * http://localhost:5000
-         *
-         * API endpoint:
-         * POST /compare
-         */
+        const response = await fetch(API_URL, {
 
-        const response = await fetch(
-            'http://localhost:5000/compare',
-            {
-                method: 'POST',
-                body: formData
-            }
-        );
+            method: "POST",
 
-        // Check HTTP status
+            body: formData
+
+        });
+
+
+        // ----------------------------------------------------
+        // HTTP error
+        // ----------------------------------------------------
+
         if (!response.ok) {
+
             throw new Error(
                 `AI server returned HTTP ${response.status}`
             );
         }
 
-        const data = await response.json();
 
-        console.log('AI API Response:', data);
+        // ----------------------------------------------------
+        // Read JSON
+        // ----------------------------------------------------
 
-        if (data.success) {
+        const result = await response.json();
 
-            // Display dynamic AI results
-            displayAIResults(data.data);
 
-        } else {
+        console.log(
+            "MandiMart AI Response:",
+            result
+        );
 
-            resultDiv.innerHTML = `
-                <div class="alert alert-danger">
 
-                    <i class="bi bi-exclamation-triangle"></i>
+        // ----------------------------------------------------
+        // API failure
+        // ----------------------------------------------------
 
-                    <strong>AI Comparison Failed</strong>
+        if (!result.success) {
 
-                    <br>
-
-                    ${data.message || 'Unable to analyze images.'}
-
-                </div>
-            `;
+            throw new Error(
+                result.message ||
+                "AI comparison failed."
+            );
         }
+
+
+        // ----------------------------------------------------
+        // Display results
+        // ----------------------------------------------------
+
+        displayAIResults(result.data);
+
 
     } catch (error) {
 
-        console.error('AI Connection Error:', error);
+        console.error(
+            "MandiMart AI Error:",
+            error
+        );
 
-        resultDiv.innerHTML = `
+
+        resultBox.innerHTML = `
+
             <div class="alert alert-danger">
 
-                <i class="bi bi-wifi-off"></i>
+                <h5>
+                    ❌ AI comparison failed
+                </h5>
 
-                <strong>Cannot connect to AI server</strong>
-
-                <p class="mb-1 mt-2">
-                    Make sure your Python API is running on:
+                <p>
+                    Could not connect to the MandiMart
+                    AI server.
                 </p>
-
-                <code>
-                    http://localhost:5000
-                </code>
 
                 <hr>
 
-                <strong>Possible reasons:</strong>
+                <p class="mb-1">
+                    <strong>API URL:</strong>
+                </p>
 
-                <ul class="mb-0">
-                    <li>Python server is not running</li>
-                    <li>Port 5000 is incorrect</li>
-                    <li>API endpoint is incorrect</li>
-                    <li>CORS is not enabled</li>
-                    <li>Flask server crashed</li>
-                </ul>
+                <code>
+                    ${API_URL}
+                </code>
 
-                <small class="text-muted">
-                    Error: ${error.message}
+                <br><br>
+
+                <p class="mb-1">
+                    <strong>Error:</strong>
+                </p>
+
+                <small>
+                    ${error.message}
                 </small>
 
+                <br><br>
+
+                <button
+                    class="btn btn-success"
+                    onclick="runAICompare()">
+
+                    🔄 Try Again
+
+                </button>
+
             </div>
+
         `;
     }
 }
+
+
+// ============================================================
+// RESET AI COMPARISON
+// ============================================================
+
+function resetComparison() {
+
+    const file1 = document.getElementById("file1");
+    const file2 = document.getElementById("file2");
+
+    const img1 = document.getElementById("img1");
+    const img2 = document.getElementById("img2");
+
+    const result = document.getElementById("aiResult");
+
+
+    if (file1) file1.value = "";
+    if (file2) file2.value = "";
+
+
+    if (img1) {
+
+        img1.src = "";
+        img1.style.display = "none";
+
+    }
+
+
+    if (img2) {
+
+        img2.src = "";
+        img2.style.display = "none";
+
+    }
+
+
+    if (result) {
+
+        result.innerHTML = "";
+
+    }
+
+
+    ["dz1", "dz2"].forEach(id => {
+
+        const dz = document.getElementById(id);
+
+        if (!dz) return;
+
+        dz.classList.remove("has-image");
+
+        const icon = dz.querySelector(".upload-icon");
+
+        if (icon) {
+            icon.style.display = "block";
+        }
+
+    });
+}
+
+
 
 // ===== AI COMPARE =====
 function loadImage(fileId, imgId, dzId) {
@@ -669,46 +913,6 @@ function loadImage(fileId, imgId, dzId) {
     reader.readAsDataURL(file);
 }
 
-function runAICompare() {
-    const img1 = document.getElementById('img1');
-    const img2 = document.getElementById('img2');
-    const result = document.getElementById('aiResult');
-    
-    if (!img1.src || !img2.src || img1.style.display === 'none' || img2.style.display === 'none') {
-        alert('Please upload BOTH vegetable images first.');
-        return;
-    }
-    
-    result.innerHTML = '<div class="text-center"><div class="spinner-border text-success"></div><p class="mt-2">Analyzing with CNN + OpenCV...</p></div>';
-    
-    setTimeout(() => {
-        const scores = [
-            {name:'Vegetable 1', fresh:94, grade:'A', defects:'None', score:92},
-            {name:'Vegetable 2', fresh:79, grade:'B', defects:'Minor spots', score:74}
-        ];
-        const winner = scores[0];
-        
-        result.innerHTML = `
-            <div class="row g-3">
-                ${scores.map(s => `
-                <div class="col-md-6">
-                    <div class="result-card">
-                        <div class="fw-bold mb-2">${s.name}</div>
-                        <div class="d-flex justify-content-between"><span>Freshness</span><strong>${s.fresh}%</strong></div>
-                        <div class="progress"><div class="progress-bar" style="width:${s.fresh}%"></div></div>
-                        <div class="d-flex justify-content-between"><span>Grade</span><span class="badge bg-${s.grade==='A'?'success':'warning'}">${s.grade}</span></div>
-                        <div class="d-flex justify-content-between"><span>Defects</span><span>${s.defects}</span></div>
-                        <div class="d-flex justify-content-between mt-2"><span>Score</span><strong class="text-success">${s.score}/100</strong></div>
-                    </div>
-                </div>`).join('')}
-            </div>
-            <div class="alert alert-success mt-3">
-                <i class="bi bi-trophy-fill"></i> <strong>AI Recommendation:</strong> 
-                ${winner.name} is recommended — higher freshness (${winner.fresh}%), better color, no defects.
-            </div>
-        `;
-    }, 1500);
-}
 
 // ===== LOGIN / REGISTER =====
 function showTab(tab, el) {
