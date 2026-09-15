@@ -1,388 +1,638 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>MandiMart - Checkout</title>
+    <title>MandiMart - Checkout</title>
 
-<style>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: Arial, Helvetica, sans-serif;
-}
+    <!-- Bootstrap -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
 
-body {
-    background: #f5f7f5;
-    color: #222;
-}
+    <!-- Bootstrap Icons -->
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    >
 
-/* HEADER */
-header {
-    background: #176b35;
-    color: white;
-    padding: 15px 6%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 2px 8px rgba(0,0,0,.15);
-}
+    <style>
+        :root {
+            --mandi-green: #198754;
+            --dark-green: #146c43;
+            --light-green: #eaf7ef;
+            --border: #dce7df;
+            --text: #26332b;
+        }
 
-.logo {
-    font-size: 25px;
-    font-weight: bold;
-}
+        * {
+            box-sizing: border-box;
+        }
 
-nav a {
-    color: white;
-    text-decoration: none;
-    margin-left: 22px;
-    font-size: 15px;
-}
+        body {
+            margin: 0;
+            background: #f5f8f6;
+            color: var(--text);
+            font-family: Arial, Helvetica, sans-serif;
+        }
 
-nav a:hover {
-    text-decoration: underline;
-}
+        /* =========================
+           NAVBAR
+        ========================== */
 
-/* PAGE */
-.container {
-    width: 92%;
-    max-width: 1200px;
-    margin: 35px auto;
-}
+        .navbar {
+            background: #ffffff;
+            border-bottom: 1px solid #e5e5e5;
+            padding: 13px 0;
+        }
 
-.page-title {
-    margin-bottom: 25px;
-}
+        .navbar-brand {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--mandi-green) !important;
+        }
 
-.page-title h1 {
-    color: #176b35;
-    margin-bottom: 6px;
-}
+        .navbar-brand i {
+            margin-right: 7px;
+        }
 
-.page-title p {
-    color: #666;
-}
+        .nav-link {
+            color: #333 !important;
+            font-weight: 500;
+            margin: 0 4px;
+        }
 
-/* GRID */
-.checkout-grid {
-    display: grid;
-    grid-template-columns: 1.6fr 1fr;
-    gap: 25px;
-}
+        .nav-link:hover {
+            color: var(--mandi-green) !important;
+        }
 
-/* CARD */
-.card {
-    background: white;
-    border-radius: 12px;
-    padding: 25px;
-    box-shadow: 0 3px 12px rgba(0,0,0,.08);
-    margin-bottom: 20px;
-}
+        .back-btn {
+            color: var(--mandi-green);
+            text-decoration: none;
+            font-weight: 600;
+        }
 
-.card h2 {
-    color: #176b35;
-    margin-bottom: 20px;
-}
+        .back-btn:hover {
+            color: var(--dark-green);
+        }
 
-/* PRODUCT */
-.product {
-    display: flex;
-    align-items: center;
-    gap: 18px;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 18px;
-}
+        /* =========================
+           PAGE
+        ========================== */
 
-.product img {
-    width: 100px;
-    height: 100px;
-    border-radius: 10px;
-    object-fit: cover;
-}
+        .checkout-page {
+            padding: 35px 0 60px;
+        }
 
-.product-info {
-    flex: 1;
-}
+        .page-title {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 7px;
+        }
 
-.product-info h3 {
-    margin-bottom: 8px;
-}
+        .page-subtitle {
+            color: #6c757d;
+            margin-bottom: 30px;
+        }
 
-.product-info p {
-    color: #666;
-    font-size: 14px;
-    margin-bottom: 5px;
-}
+        /* =========================
+           CARDS
+        ========================== */
 
-.price {
-    font-weight: bold;
-    color: #176b35;
-    font-size: 19px;
-}
+        .checkout-card {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 22px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+        }
 
-/* QUANTITY */
-.quantity {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-top: 10px;
-}
+        .section-title {
+            font-size: 20px;
+            font-weight: 750;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
 
-.quantity button {
-    width: 30px;
-    height: 30px;
-    border: none;
-    background: #176b35;
-    color: white;
-    border-radius: 5px;
-    cursor: pointer;
-}
+        .section-title i {
+            color: var(--mandi-green);
+        }
 
-.quantity span {
-    min-width: 30px;
-    text-align: center;
-}
+        /* =========================
+           PRODUCT
+        ========================== */
 
-/* FORM */
-.form-group {
-    margin-bottom: 16px;
-}
+        .product-box {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e8eee9;
+        }
 
-.form-group label {
-    display: block;
-    font-weight: bold;
-    margin-bottom: 7px;
-}
+        .product-image {
+            width: 95px;
+            height: 95px;
+            border-radius: 14px;
+            background: var(--light-green);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 50px;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
 
-.form-group input,
-.form-group select,
-.form-group textarea {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid #ccc;
-    border-radius: 7px;
-    font-size: 14px;
-}
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
 
-.form-group textarea {
-    min-height: 80px;
-    resize: vertical;
-}
+        .product-name {
+            font-size: 22px;
+            font-weight: 800;
+            margin-bottom: 6px;
+        }
 
-/* PAYMENT */
-.payment-option {
-    border: 1px solid #ddd;
-    padding: 15px;
-    border-radius: 8px;
-    margin-bottom: 10px;
-    cursor: pointer;
-}
+        .product-price {
+            color: var(--mandi-green);
+            font-size: 20px;
+            font-weight: 800;
+        }
 
-.payment-option:hover {
-    border-color: #176b35;
-}
+        .product-details {
+            color: #6c757d;
+            font-size: 14px;
+            margin-top: 7px;
+        }
 
-.payment-option input {
-    margin-right: 10px;
-}
+        .badge-grade {
+            background: #e8f7ee;
+            color: var(--dark-green);
+            padding: 5px 9px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+        }
 
-.payment-details {
-    display: none;
-    margin-top: 15px;
-}
+        /* =========================
+           FORM
+        ========================== */
 
-.payment-details.active {
-    display: block;
-}
+        .form-label {
+            font-weight: 650;
+            margin-bottom: 7px;
+        }
 
-/* SUMMARY */
-.summary-row {
-    display: flex;
-    justify-content: space-between;
-    margin: 13px 0;
-}
+        .form-control,
+        .form-select {
+            border: 1px solid #ced8d1;
+            border-radius: 9px;
+            min-height: 46px;
+        }
 
-.summary-row.total {
-    border-top: 2px solid #eee;
-    padding-top: 18px;
-    font-size: 21px;
-    font-weight: bold;
-    color: #176b35;
-}
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--mandi-green);
+            box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.12);
+        }
 
-.place-order {
-    width: 100%;
-    padding: 15px;
-    background: #176b35;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 17px;
-    font-weight: bold;
-    cursor: pointer;
-    margin-top: 20px;
-}
+        .required {
+            color: #dc3545;
+        }
 
-.place-order:hover {
-    background: #0f5227;
-}
+        /* =========================
+           QUANTITY
+        ========================== */
 
-/* SECURE */
-.secure {
-    background: #edf8f0;
-    padding: 14px;
-    border-radius: 8px;
-    margin-top: 15px;
-    color: #176b35;
-    font-size: 14px;
-}
+        .quantity-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 20px;
+        }
 
-/* SUCCESS */
-.success {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,.55);
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-}
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            border: 1px solid #ced8d1;
+            border-radius: 9px;
+            overflow: hidden;
+            width: 155px;
+        }
 
-.success-box {
-    background: white;
-    padding: 40px;
-    border-radius: 15px;
-    text-align: center;
-    width: 90%;
-    max-width: 450px;
-}
+        .quantity-control button {
+            width: 44px;
+            height: 44px;
+            border: none;
+            background: #f0f5f2;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--mandi-green);
+        }
 
-.success-icon {
-    font-size: 60px;
-    margin-bottom: 15px;
-}
+        .quantity-control button:hover {
+            background: #dcefe4;
+        }
 
-.success-box h2 {
-    color: #176b35;
-    margin-bottom: 10px;
-}
+        .quantity-control input {
+            width: 67px;
+            height: 44px;
+            border: none;
+            outline: none;
+            text-align: center;
+            font-weight: 700;
+        }
 
-.success-box button {
-    margin-top: 20px;
-    padding: 12px 25px;
-    border: none;
-    background: #176b35;
-    color: white;
-    border-radius: 7px;
-    cursor: pointer;
-}
+        .stock-text {
+            color: #6c757d;
+            font-size: 13px;
+        }
 
-/* MOBILE */
-@media(max-width: 800px) {
+        /* =========================
+           PAYMENT
+        ========================== */
 
-    header {
-        flex-direction: column;
-        gap: 12px;
-    }
+        .payment-option {
+            border: 1px solid #d7e0da;
+            border-radius: 11px;
+            padding: 15px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
 
-    nav a {
-        margin: 0 7px;
-        font-size: 13px;
-    }
+        .payment-option:hover {
+            border-color: var(--mandi-green);
+            background: #f8fcf9;
+        }
 
-    .checkout-grid {
-        grid-template-columns: 1fr;
-    }
+        .payment-option.active {
+            border: 2px solid var(--mandi-green);
+            background: #f1faf5;
+        }
 
-    .product {
-        align-items: flex-start;
-    }
+        .payment-radio {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
 
-    .product img {
-        width: 80px;
-        height: 80px;
-    }
-}
-</style>
+        .payment-radio input {
+            accent-color: var(--mandi-green);
+            width: 18px;
+            height: 18px;
+        }
+
+        .payment-title {
+            font-weight: 750;
+        }
+
+        .payment-description {
+            color: #6c757d;
+            font-size: 13px;
+            margin-left: 30px;
+            margin-top: 4px;
+        }
+
+        .payment-fields {
+            display: none;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #dce7df;
+        }
+
+        .payment-fields.show {
+            display: block;
+        }
+
+        /* =========================
+           ORDER SUMMARY
+        ========================== */
+
+        .summary-card {
+            position: sticky;
+            top: 20px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            color: #59635d;
+        }
+
+        .summary-row strong {
+            color: #26332b;
+        }
+
+        .summary-divider {
+            border-top: 1px dashed #d6dfd9;
+            margin: 10px 0;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 22px;
+            font-weight: 800;
+            padding-top: 10px;
+        }
+
+        .total-price {
+            color: var(--mandi-green);
+        }
+
+        .place-order-btn {
+            width: 100%;
+            border: none;
+            border-radius: 10px;
+            background: var(--mandi-green);
+            color: white;
+            font-size: 17px;
+            font-weight: 750;
+            padding: 14px;
+            margin-top: 20px;
+            transition: 0.2s;
+        }
+
+        .place-order-btn:hover {
+            background: var(--dark-green);
+        }
+
+        .place-order-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .secure-text {
+            text-align: center;
+            color: #6c757d;
+            font-size: 12px;
+            margin-top: 13px;
+        }
+
+        .secure-text i {
+            color: var(--mandi-green);
+        }
+
+        /* =========================
+           SUCCESS MODAL
+        ========================== */
+
+        .success-icon {
+            width: 75px;
+            height: 75px;
+            border-radius: 50%;
+            background: #e7f7ed;
+            color: var(--mandi-green);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 42px;
+            margin: 0 auto 18px;
+        }
+
+        .order-number {
+            background: #f0f5f2;
+            border-radius: 9px;
+            padding: 12px;
+            font-weight: 700;
+            margin: 18px 0;
+        }
+
+        /* =========================
+           RESPONSIVE
+        ========================== */
+
+        @media (max-width: 768px) {
+
+            .page-title {
+                font-size: 26px;
+            }
+
+            .checkout-page {
+                padding-top: 25px;
+            }
+
+            .checkout-card {
+                padding: 18px;
+            }
+
+            .product-box {
+                align-items: flex-start;
+            }
+
+            .product-image {
+                width: 75px;
+                height: 75px;
+                font-size: 38px;
+            }
+
+            .product-name {
+                font-size: 18px;
+            }
+
+            .product-price {
+                font-size: 17px;
+            }
+
+            .summary-card {
+                position: static;
+            }
+        }
+    </style>
 </head>
 
 <body>
 
-<header>
+<!-- =========================
+     NAVBAR
+========================== -->
 
-    <div class="logo">
-        🌾 MandiMart
+<nav class="navbar navbar-expand-lg">
+    <div class="container">
+
+        <a class="navbar-brand" href="index.html">
+            <i class="bi bi-shop"></i>
+            MandiMart
+        </a>
+
+        <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarNav"
+        >
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+
+            <ul class="navbar-nav ms-auto align-items-lg-center">
+
+                <li class="nav-item">
+                    <a class="nav-link" href="index.html">Home</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="crops.html">Crops</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="auctions.html">Auctions</a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="compare.html">Compare</a>
+                </li>
+
+                <li class="nav-item ms-lg-3">
+                    <a class="back-btn" href="crops.html">
+                        <i class="bi bi-arrow-left"></i>
+                        Back to Crops
+                    </a>
+                </li>
+
+            </ul>
+
+        </div>
     </div>
-
-    <nav>
-        <a href="index.html">Home</a>
-        <a href="crops.html">Crops</a>
-        <a href="auctions.html">Auctions</a>
-        <a href="compare.html">Compare</a>
-    </nav>
-
-</header>
+</nav>
 
 
-<div class="container">
+<!-- =========================
+     MAIN CHECKOUT
+========================== -->
 
-    <div class="page-title">
-        <h1>🛒 Checkout</h1>
-        <p>Complete your order securely through MandiMart.</p>
-    </div>
+<main class="checkout-page">
+
+    <div class="container">
+
+        <h1 class="page-title">
+            Checkout
+        </h1>
+
+        <p class="page-subtitle">
+            Complete your order directly from the farmer.
+        </p>
 
 
-    <div class="checkout-grid">
+        <div class="row g-4">
 
-        <!-- LEFT SIDE -->
+            <!-- =====================
+                 LEFT SIDE
+            ====================== -->
 
-        <div>
+            <div class="col-lg-8">
 
-            <!-- ORDER -->
-            <div class="card">
 
-                <h2>Order Details</h2>
+                <!-- PRODUCT DETAILS -->
 
-                <div class="product">
+                <div class="checkout-card">
 
-                    <img
-                        id="productImage"
-                        src="https://images.unsplash.com/photo-1546094096-0df4bcaaa337?auto=format&fit=crop&w=300&q=80"
-                        alt="Tomatoes">
+                    <div class="section-title">
+                        <i class="bi bi-basket2-fill"></i>
+                        Product Details
+                    </div>
 
-                    <div class="product-info">
+                    <div class="product-box">
 
-                        <h3 id="productName">
-                            Fresh Tomatoes
-                        </h3>
-
-                        <p>
-                            Seller: MandiMart Farmer
-                        </p>
-
-                        <p>
-                            Quality: Grade A
-                        </p>
-
-                        <div class="price">
-                            ₹<span id="productPrice">1500</span> / quintal
+                        <div class="product-image" id="productImage">
+                            🌾
                         </div>
 
-                        <div class="quantity">
+                        <div class="flex-grow-1">
 
-                            <button onclick="changeQuantity(-1)">
+                            <div
+                                class="product-name"
+                                id="productName"
+                            >
+                                Loading product...
+                            </div>
+
+                            <div
+                                class="product-price"
+                                id="productPrice"
+                            >
+                                ₹0 / quintal
+                            </div>
+
+                            <div class="product-details">
+
+                                Farmer:
+                                <strong id="sellerName">
+                                    -
+                                </strong>
+
+                                <br>
+
+                                Rating:
+                                <span id="sellerRating">
+                                    -
+                                </span>
+
+                                <br>
+
+                                Grade:
+                                <span
+                                    class="badge-grade"
+                                    id="productGrade"
+                                >
+                                    -
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- QUANTITY -->
+
+                    <div class="quantity-wrapper">
+
+                        <div>
+                            <strong>Order Quantity</strong>
+
+                            <div class="stock-text">
+                                Available:
+                                <span id="availableStock">
+                                    0
+                                </span>
+                                quintals
+                            </div>
+                        </div>
+
+                        <div class="quantity-control ms-auto">
+
+                            <button
+                                type="button"
+                                onclick="decreaseQuantity()"
+                            >
                                 −
                             </button>
 
-                            <span id="quantity">
-                                1
-                            </span>
+                            <input
+                                type="number"
+                                id="orderQuantity"
+                                value="1"
+                                min="1"
+                                step="1"
+                                onchange="updateQuantityFromInput()"
+                            >
 
-                            <button onclick="changeQuantity(1)">
+                            <button
+                                type="button"
+                                onclick="increaseQuantity()"
+                            >
                                 +
                             </button>
 
@@ -392,203 +642,451 @@ nav a:hover {
 
                 </div>
 
-            </div>
 
+                <!-- DELIVERY DETAILS -->
 
-            <!-- DELIVERY -->
-            <div class="card">
+                <div class="checkout-card">
 
-                <h2>📍 Delivery Details</h2>
-
-                <div class="form-group">
-
-                    <label>Full Name</label>
-
-                    <input
-                        type="text"
-                        id="name"
-                        placeholder="Enter your full name">
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label>Mobile Number</label>
-
-                    <input
-                        type="tel"
-                        id="mobile"
-                        placeholder="10-digit mobile number"
-                        maxlength="10">
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label>Delivery Address</label>
-
-                    <textarea
-                        id="address"
-                        placeholder="Enter complete delivery address"></textarea>
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label>City</label>
-
-                    <input
-                        type="text"
-                        id="city"
-                        placeholder="Enter city">
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label>PIN Code</label>
-
-                    <input
-                        type="text"
-                        id="pincode"
-                        placeholder="6-digit PIN code"
-                        maxlength="6">
-
-                </div>
-
-            </div>
-
-
-            <!-- PAYMENT -->
-            <div class="card">
-
-                <h2>💳 Payment Method</h2>
-
-
-                <label class="payment-option">
-
-                    <input
-                        type="radio"
-                        name="payment"
-                        value="upi"
-                        onchange="showPayment('upi')">
-
-                    📱 UPI
-
-                </label>
-
-
-                <label class="payment-option">
-
-                    <input
-                        type="radio"
-                        name="payment"
-                        value="card"
-                        onchange="showPayment('card')">
-
-                    💳 Debit / Credit Card
-
-                </label>
-
-
-                <label class="payment-option">
-
-                    <input
-                        type="radio"
-                        name="payment"
-                        value="cod"
-                        onchange="showPayment('cod')">
-
-                    💵 Cash on Delivery
-
-                </label>
-
-
-                <!-- UPI -->
-
-                <div
-                    id="upiDetails"
-                    class="payment-details">
-
-                    <div class="form-group">
-
-                        <label>UPI ID</label>
-
-                        <input
-                            type="text"
-                            id="upi"
-                            placeholder="example@upi">
-
+                    <div class="section-title">
+                        <i class="bi bi-geo-alt-fill"></i>
+                        Delivery Details
                     </div>
 
+                    <form id="checkoutForm">
+
+                        <div class="row g-3">
+
+                            <div class="col-md-6">
+
+                                <label class="form-label">
+                                    Full Name
+                                    <span class="required">*</span>
+                                </label>
+
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    id="customerName"
+                                    placeholder="Enter your full name"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <div class="col-md-6">
+
+                                <label class="form-label">
+                                    Mobile Number
+                                    <span class="required">*</span>
+                                </label>
+
+                                <input
+                                    type="tel"
+                                    class="form-control"
+                                    id="mobileNumber"
+                                    placeholder="10-digit mobile number"
+                                    maxlength="10"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <div class="col-12">
+
+                                <label class="form-label">
+                                    Delivery Address
+                                    <span class="required">*</span>
+                                </label>
+
+                                <textarea
+                                    class="form-control"
+                                    id="deliveryAddress"
+                                    rows="3"
+                                    placeholder="House no., building, street, area"
+                                    required
+                                ></textarea>
+
+                            </div>
+
+
+                            <div class="col-md-6">
+
+                                <label class="form-label">
+                                    City
+                                    <span class="required">*</span>
+                                </label>
+
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    id="city"
+                                    placeholder="Enter city"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <div class="col-md-6">
+
+                                <label class="form-label">
+                                    PIN Code
+                                    <span class="required">*</span>
+                                </label>
+
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    id="pinCode"
+                                    placeholder="6-digit PIN"
+                                    maxlength="6"
+                                    required
+                                >
+
+                            </div>
+
+                        </div>
+
+                    </form>
+
                 </div>
 
 
-                <!-- CARD -->
+                <!-- PAYMENT -->
 
-                <div
-                    id="cardDetails"
-                    class="payment-details">
+                <div class="checkout-card">
 
-                    <div class="form-group">
-
-                        <label>Card Number</label>
-
-                        <input
-                            type="text"
-                            id="cardNumber"
-                            placeholder="XXXX XXXX XXXX XXXX"
-                            maxlength="19">
-
+                    <div class="section-title">
+                        <i class="bi bi-credit-card-fill"></i>
+                        Payment Method
                     </div>
 
+
+                    <!-- UPI -->
 
                     <div
-                        style="
-                        display:grid;
-                        grid-template-columns:1fr 1fr;
-                        gap:10px;">
+                        class="payment-option"
+                        id="upiOption"
+                        onclick="selectPayment('upi')"
+                    >
 
-                        <div class="form-group">
+                        <div class="payment-radio">
 
-                            <label>Expiry</label>
+                            <input
+                                type="radio"
+                                name="payment"
+                                id="upiRadio"
+                                value="upi"
+                            >
+
+                            <label
+                                for="upiRadio"
+                                class="payment-title"
+                            >
+                                <i class="bi bi-phone"></i>
+                                UPI
+                            </label>
+
+                        </div>
+
+                        <div class="payment-description">
+                            Pay using UPI apps such as Google Pay,
+                            PhonePe or Paytm.
+                        </div>
+
+
+                        <div
+                            class="payment-fields"
+                            id="upiFields"
+                        >
+
+                            <label class="form-label">
+                                UPI ID
+                            </label>
 
                             <input
                                 type="text"
-                                placeholder="MM/YY"
-                                maxlength="5">
+                                class="form-control"
+                                id="upiId"
+                                placeholder="example@upi"
+                            >
 
                         </div>
 
+                    </div>
 
-                        <div class="form-group">
 
-                            <label>CVV</label>
+                    <!-- CARD -->
+
+                    <div
+                        class="payment-option"
+                        id="cardOption"
+                        onclick="selectPayment('card')"
+                    >
+
+                        <div class="payment-radio">
 
                             <input
-                                type="password"
-                                placeholder="CVV"
-                                maxlength="3">
+                                type="radio"
+                                name="payment"
+                                id="cardRadio"
+                                value="card"
+                            >
 
+                            <label
+                                for="cardRadio"
+                                class="payment-title"
+                            >
+                                <i class="bi bi-credit-card"></i>
+                                Credit / Debit Card
+                            </label>
+
+                        </div>
+
+                        <div class="payment-description">
+                            Visa, Mastercard and other supported cards.
+                        </div>
+
+
+                        <div
+                            class="payment-fields"
+                            id="cardFields"
+                        >
+
+                            <div class="mb-3">
+
+                                <label class="form-label">
+                                    Card Number
+                                </label>
+
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    id="cardNumber"
+                                    placeholder="1234 5678 9012 3456"
+                                    maxlength="19"
+                                >
+
+                            </div>
+
+
+                            <div class="row g-3">
+
+                                <div class="col-6">
+
+                                    <label class="form-label">
+                                        Expiry
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        class="form-control"
+                                        id="cardExpiry"
+                                        placeholder="MM/YY"
+                                        maxlength="5"
+                                    >
+
+                                </div>
+
+                                <div class="col-6">
+
+                                    <label class="form-label">
+                                        CVV
+                                    </label>
+
+                                    <input
+                                        type="password"
+                                        class="form-control"
+                                        id="cardCvv"
+                                        placeholder="123"
+                                        maxlength="3"
+                                    >
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- COD -->
+
+                    <div
+                        class="payment-option"
+                        id="codOption"
+                        onclick="selectPayment('cod')"
+                    >
+
+                        <div class="payment-radio">
+
+                            <input
+                                type="radio"
+                                name="payment"
+                                id="codRadio"
+                                value="cod"
+                            >
+
+                            <label
+                                for="codRadio"
+                                class="payment-title"
+                            >
+                                <i class="bi bi-cash-stack"></i>
+                                Cash on Delivery
+                            </label>
+
+                        </div>
+
+                        <div class="payment-description">
+                            Pay when your order is delivered.
                         </div>
 
                     </div>
 
                 </div>
 
+            </div>
 
-                <div
-                    id="codDetails"
-                    class="payment-details">
 
-                    <p>
-                        💵 You can pay the delivery partner
-                        when your order arrives.
-                    </p>
+            <!-- =====================
+                 RIGHT SIDE
+            ====================== -->
+
+            <div class="col-lg-4">
+
+                <div class="checkout-card summary-card">
+
+                    <div class="section-title">
+                        <i class="bi bi-receipt"></i>
+                        Order Summary
+                    </div>
+
+
+                    <div class="summary-row">
+
+                        <span>
+                            Product
+                        </span>
+
+                        <strong id="summaryProduct">
+                            -
+                        </strong>
+
+                    </div>
+
+
+                    <div class="summary-row">
+
+                        <span>
+                            Price
+                        </span>
+
+                        <strong>
+                            ₹<span id="summaryUnitPrice">0</span>
+                            / quintal
+                        </strong>
+
+                    </div>
+
+
+                    <div class="summary-row">
+
+                        <span>
+                            Quantity
+                        </span>
+
+                        <strong>
+                            <span id="summaryQuantity">1</span>
+                            quintal
+                        </strong>
+
+                    </div>
+
+
+                    <div class="summary-row">
+
+                        <span>
+                            Subtotal
+                        </span>
+
+                        <strong>
+                            ₹<span id="subtotal">0</span>
+                        </strong>
+
+                    </div>
+
+
+                    <div class="summary-row">
+
+                        <span>
+                            Delivery Fee
+                        </span>
+
+                        <strong>
+                            ₹<span id="deliveryFee">100</span>
+                        </strong>
+
+                    </div>
+
+
+                    <div class="summary-row">
+
+                        <span>
+                            Platform Fee
+                        </span>
+
+                        <strong>
+                            ₹<span id="platformFee">20</span>
+                        </strong>
+
+                    </div>
+
+
+                    <div class="summary-divider"></div>
+
+
+                    <div class="total-row">
+
+                        <span>
+                            Total
+                        </span>
+
+                        <span class="total-price">
+                            ₹<span id="grandTotal">0</span>
+                        </span>
+
+                    </div>
+
+
+                    <button
+                        type="button"
+                        class="place-order-btn"
+                        id="placeOrderBtn"
+                        onclick="placeFinalOrder()"
+                    >
+
+                        <i class="bi bi-check-circle"></i>
+                        Place Order
+
+                    </button>
+
+
+                    <div class="secure-text">
+
+                        <i class="bi bi-shield-lock-fill"></i>
+
+                        Your information is securely processed.
+
+                    </div>
+
+                    <div class="secure-text">
+                        MandiMart college project demo.
+                        No real payment will be charged.
+
+                    </div>
 
                 </div>
 
@@ -596,110 +1094,83 @@ nav a:hover {
 
         </div>
 
+    </div>
 
-        <!-- RIGHT SIDE -->
-
-        <div>
-
-            <div class="card">
-
-                <h2>🧾 Order Summary</h2>
+</main>
 
 
-                <div class="summary-row">
+<!-- =========================
+     SUCCESS MODAL
+========================== -->
 
-                    <span>Product</span>
+<div
+    class="modal fade"
+    id="successModal"
+    tabindex="-1"
+    aria-hidden="true"
+>
 
-                    <span>
-                        ₹<span id="subtotal">1500</span>
+    <div class="modal-dialog modal-dialog-centered">
+
+        <div class="modal-content border-0 rounded-4">
+
+            <div class="modal-body text-center p-5">
+
+                <div class="success-icon">
+                    <i class="bi bi-check-lg"></i>
+                </div>
+
+                <h2 class="fw-bold">
+                    Order Confirmed!
+                </h2>
+
+                <p class="text-muted">
+                    Your order has been successfully placed.
+                </p>
+
+
+                <div class="order-number">
+
+                    Order ID:
+                    <span id="generatedOrderId">
+                        MM000000
                     </span>
 
                 </div>
 
 
-                <div class="summary-row">
+                <div class="text-start bg-light rounded-3 p-3 mb-3">
 
-                    <span>Quantity</span>
+                    <div class="mb-2">
+                        <strong>Product:</strong>
+                        <span id="successProduct">-</span>
+                    </div>
 
-                    <span id="summaryQuantity">
-                        1
-                    </span>
+                    <div class="mb-2">
+                        <strong>Quantity:</strong>
+                        <span id="successQuantity">-</span>
+                    </div>
 
-                </div>
-
-
-                <div class="summary-row">
-
-                    <span>Delivery</span>
-
-                    <span id="delivery">
-                        ₹100
-                    </span>
+                    <div>
+                        <strong>Total:</strong>
+                        ₹<span id="successTotal">0</span>
+                    </div>
 
                 </div>
 
 
-                <div class="summary-row">
-
-                    <span>Platform Fee</span>
-
-                    <span>
-                        ₹20
-                    </span>
-
-                </div>
-
-
-                <div class="summary-row total">
-
-                    <span>Total</span>
-
-                    <span>
-                        ₹<span id="total">1620</span>
-                    </span>
-
-                </div>
+                <p class="small text-muted">
+                    The farmer will be notified about your order.
+                </p>
 
 
                 <button
-                    class="place-order"
-                    onclick="placeOrder()">
-
-                    🔒 Place Order
-
+                    class="btn btn-success w-100 py-2"
+                    onclick="goToCrops()"
+                >
+                    Continue Shopping
                 </button>
 
-
-                <div class="secure">
-
-                    🔐 Your payment and personal information
-                    are protected.
-
-                </div>
-
-            </div>
-
-
-            <div class="card">
-
-                <h2>🌾 MandiMart Promise</h2>
-
-                <p style="margin-bottom:12px;">
-                    ✓ Direct farmer-to-buyer trading
-                </p>
-
-                <p style="margin-bottom:12px;">
-                    ✓ Transparent pricing
-                </p>
-
-                <p style="margin-bottom:12px;">
-                    ✓ Quality verified products
-                </p>
-
-                <p>
-                    ✓ Secure checkout
-                </p>
-
             </div>
 
         </div>
@@ -709,158 +1180,393 @@ nav a:hover {
 </div>
 
 
-<!-- SUCCESS POPUP -->
+<!-- Bootstrap JS -->
 
-<div
-    class="success"
-    id="successPopup">
-
-    <div class="success-box">
-
-        <div class="success-icon">
-            ✅
-        </div>
-
-        <h2>
-            Order Placed Successfully!
-        </h2>
-
-        <p>
-            Thank you for shopping with MandiMart.
-        </p>
-
-        <p style="margin-top:10px;">
-            Order ID:
-            <strong id="orderId"></strong>
-        </p>
-
-        <button onclick="goHome()">
-            Back to Home
-        </button>
-
-    </div>
-
-</div>
+<script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+></script>
 
 
 <script>
 
-let quantity = 1;
-
-const productPrice = 1500;
-
-const deliveryCharge = 100;
-
-const platformFee = 20;
+/* ==========================================================
+   MANDIMART CHECKOUT
+   Matches main.js crop structure
+========================================================== */
 
 
-/* QUANTITY */
+/* ==========================================================
+   GET PRODUCT DATA FROM URL
+========================================================== */
 
-function changeQuantity(value) {
+const params = new URLSearchParams(window.location.search);
 
-    quantity += value;
+const productId = params.get("id");
 
-    if (quantity < 1) {
-        quantity = 1;
+const productNameValue =
+    params.get("product") || "Unknown Product";
+
+const unitPrice =
+    Number(params.get("price")) || 0;
+
+const availableQuantity =
+    Number(params.get("quantity")) || 1;
+
+const productGrade =
+    params.get("grade") || "N/A";
+
+const seller =
+    params.get("seller") || "Unknown Farmer";
+
+const sellerRating =
+    params.get("rating") || "N/A";
+
+const productImageValue =
+    params.get("image") || "🌾";
+
+
+/* ==========================================================
+   FEES
+========================================================== */
+
+const DELIVERY_FEE = 100;
+
+const PLATFORM_FEE = 20;
+
+
+/* ==========================================================
+   CURRENT ORDER QUANTITY
+========================================================== */
+
+let orderQuantity = 1;
+
+
+/* ==========================================================
+   SELECTED PAYMENT
+========================================================== */
+
+let selectedPayment = "";
+
+
+/* ==========================================================
+   INITIALIZE PAGE
+========================================================== */
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    loadProductDetails();
+
+    updateOrderSummary();
+
+    selectPayment("cod");
+
+});
+
+
+/* ==========================================================
+   LOAD PRODUCT
+========================================================== */
+
+function loadProductDetails() {
+
+    document.getElementById("productName").textContent =
+        productNameValue;
+
+    document.getElementById("productPrice").textContent =
+        "₹" + formatNumber(unitPrice) + " / quintal";
+
+    document.getElementById("sellerName").textContent =
+        seller;
+
+    document.getElementById("sellerRating").textContent =
+        "⭐ " + sellerRating;
+
+    document.getElementById("productGrade").textContent =
+        "Grade " + productGrade;
+
+    document.getElementById("availableStock").textContent =
+        formatNumber(availableQuantity);
+
+
+    document.getElementById("summaryProduct").textContent =
+        productNameValue;
+
+    document.getElementById("summaryUnitPrice").textContent =
+        formatNumber(unitPrice);
+
+
+    /* Product image */
+
+    const imageContainer =
+        document.getElementById("productImage");
+
+
+    /*
+       main.js currently stores crop images as emoji,
+       for example 🍅, 🧅 and 🥔.
+       This also supports a normal image URL.
+    */
+
+    if (
+        productImageValue.startsWith("http://") ||
+        productImageValue.startsWith("https://") ||
+        productImageValue.startsWith("/") ||
+        productImageValue.startsWith("./")
+    ) {
+
+        const img = document.createElement("img");
+
+        img.src = productImageValue;
+
+        img.alt = productNameValue;
+
+        img.onerror = function () {
+
+            imageContainer.textContent = "🌾";
+
+        };
+
+        imageContainer.innerHTML = "";
+
+        imageContainer.appendChild(img);
+
+    } else {
+
+        imageContainer.textContent =
+            productImageValue;
+
     }
 
-    document.getElementById("quantity").innerText = quantity;
 
-    document.getElementById("summaryQuantity").innerText = quantity;
+    /* Make sure quantity is valid */
 
-    updateTotal();
+    if (availableQuantity < 1) {
+
+        orderQuantity = 0;
+
+        document.getElementById("orderQuantity").value = 0;
+
+        document.getElementById("placeOrderBtn").disabled = true;
+
+    }
 
 }
 
 
-/* TOTAL */
+/* ==========================================================
+   INCREASE QUANTITY
+========================================================== */
 
-function updateTotal() {
+function increaseQuantity() {
+
+    if (orderQuantity < availableQuantity) {
+
+        orderQuantity++;
+
+        updateQuantityDisplay();
+
+    }
+
+}
+
+
+/* ==========================================================
+   DECREASE QUANTITY
+========================================================== */
+
+function decreaseQuantity() {
+
+    if (orderQuantity > 1) {
+
+        orderQuantity--;
+
+        updateQuantityDisplay();
+
+    }
+
+}
+
+
+/* ==========================================================
+   INPUT QUANTITY
+========================================================== */
+
+function updateQuantityFromInput() {
+
+    let value =
+        Number(document.getElementById("orderQuantity").value);
+
+
+    if (isNaN(value) || value < 1) {
+
+        value = 1;
+
+    }
+
+
+    if (value > availableQuantity) {
+
+        value = availableQuantity;
+
+        alert(
+            "Only " +
+            availableQuantity +
+            " quintal(s) are available."
+        );
+
+    }
+
+
+    orderQuantity = value;
+
+    updateQuantityDisplay();
+
+}
+
+
+/* ==========================================================
+   UPDATE QUANTITY UI
+========================================================== */
+
+function updateQuantityDisplay() {
+
+    document.getElementById("orderQuantity").value =
+        orderQuantity;
+
+    updateOrderSummary();
+
+}
+
+
+/* ==========================================================
+   ORDER SUMMARY
+========================================================== */
+
+function updateOrderSummary() {
 
     const subtotal =
-        productPrice * quantity;
+        unitPrice * orderQuantity;
 
-    const total =
+    const grandTotal =
         subtotal +
-        deliveryCharge +
-        platformFee;
-
-    document.getElementById("subtotal")
-        .innerText = subtotal;
-
-    document.getElementById("total")
-        .innerText = total;
-
-}
+        DELIVERY_FEE +
+        PLATFORM_FEE;
 
 
-/* PAYMENT */
+    document.getElementById("summaryQuantity").textContent =
+        orderQuantity;
 
-function showPayment(type) {
+    document.getElementById("subtotal").textContent =
+        formatNumber(subtotal);
 
-    document.getElementById("upiDetails")
-        .classList.remove("active");
-
-    document.getElementById("cardDetails")
-        .classList.remove("active");
-
-    document.getElementById("codDetails")
-        .classList.remove("active");
-
-
-    if (type === "upi") {
-
-        document.getElementById("upiDetails")
-            .classList.add("active");
-
-    }
-
-    if (type === "card") {
-
-        document.getElementById("cardDetails")
-            .classList.add("active");
-
-    }
-
-    if (type === "cod") {
-
-        document.getElementById("codDetails")
-            .classList.add("active");
-
-    }
+    document.getElementById("grandTotal").textContent =
+        formatNumber(grandTotal);
 
 }
 
 
-/* VALIDATION */
+/* ==========================================================
+   PAYMENT SELECTION
+========================================================== */
 
-function validateForm() {
+function selectPayment(method) {
+
+    selectedPayment = method;
+
+
+    /* Remove active state */
+
+    document
+        .querySelectorAll(".payment-option")
+        .forEach(function (option) {
+
+            option.classList.remove("active");
+
+        });
+
+
+    /* Hide payment fields */
+
+    document
+        .querySelectorAll(".payment-fields")
+        .forEach(function (field) {
+
+            field.classList.remove("show");
+
+        });
+
+
+    /* Select radio */
+
+    const radio =
+        document.getElementById(method + "Radio");
+
+    if (radio) {
+
+        radio.checked = true;
+
+    }
+
+
+    /* Activate selected option */
+
+    const option =
+        document.getElementById(method + "Option");
+
+    if (option) {
+
+        option.classList.add("active");
+
+    }
+
+
+    /* Show relevant fields */
+
+    if (method === "upi") {
+
+        document
+            .getElementById("upiFields")
+            .classList.add("show");
+
+    }
+
+
+    if (method === "card") {
+
+        document
+            .getElementById("cardFields")
+            .classList.add("show");
+
+    }
+
+}
+
+
+/* ==========================================================
+   VALIDATE DELIVERY DETAILS
+========================================================== */
+
+function validateDeliveryDetails() {
 
     const name =
-        document.getElementById("name").value.trim();
+        document.getElementById("customerName").value.trim();
 
     const mobile =
-        document.getElementById("mobile").value.trim();
+        document.getElementById("mobileNumber").value.trim();
 
     const address =
-        document.getElementById("address").value.trim();
+        document.getElementById("deliveryAddress").value.trim();
 
     const city =
         document.getElementById("city").value.trim();
 
-    const pincode =
-        document.getElementById("pincode").value.trim();
+    const pin =
+        document.getElementById("pinCode").value.trim();
 
 
-    if (!name ||
-        !mobile ||
-        !address ||
-        !city ||
-        !pincode) {
+    if (!name) {
 
-        alert(
-            "Please fill in all delivery details."
-        );
+        alert("Please enter your full name.");
 
         return false;
 
@@ -878,7 +1584,25 @@ function validateForm() {
     }
 
 
-    if (!/^[0-9]{6}$/.test(pincode)) {
+    if (!address) {
+
+        alert("Please enter your delivery address.");
+
+        return false;
+
+    }
+
+
+    if (!city) {
+
+        alert("Please enter your city.");
+
+        return false;
+
+    }
+
+
+    if (!/^[0-9]{6}$/.test(pin)) {
 
         alert(
             "Please enter a valid 6-digit PIN code."
@@ -889,28 +1613,33 @@ function validateForm() {
     }
 
 
-    const payment =
-        document.querySelector(
-            'input[name="payment"]:checked'
-        );
+    return true;
+
+}
 
 
-    if (!payment) {
+/* ==========================================================
+   VALIDATE PAYMENT
+========================================================== */
 
-        alert(
-            "Please select a payment method."
-        );
+function validatePayment() {
+
+    if (!selectedPayment) {
+
+        alert("Please select a payment method.");
 
         return false;
 
     }
 
 
-    if (payment.value === "upi") {
+    /* UPI */
+
+    if (selectedPayment === "upi") {
 
         const upi =
-            document.getElementById("upi")
-            .value.trim();
+            document.getElementById("upiId").value.trim();
+
 
         if (!upi) {
 
@@ -920,18 +1649,71 @@ function validateForm() {
 
         }
 
+
+        /*
+           Basic frontend UPI validation.
+           This is NOT real payment processing.
+        */
+
+        if (!/^[\w.-]+@[\w.-]+$/.test(upi)) {
+
+            alert("Please enter a valid UPI ID.");
+
+            return false;
+
+        }
+
     }
 
 
-    if (payment.value === "card") {
+    /* CARD */
 
-        const card =
-            document.getElementById("cardNumber")
-            .value.trim();
+    if (selectedPayment === "card") {
 
-        if (!card) {
+        const cardNumber =
+            document
+                .getElementById("cardNumber")
+                .value
+                .replace(/\s/g, "");
 
-            alert("Please enter your card number.");
+        const expiry =
+            document
+                .getElementById("cardExpiry")
+                .value
+                .trim();
+
+        const cvv =
+            document
+                .getElementById("cardCvv")
+                .value
+                .trim();
+
+
+        if (!/^[0-9]{16}$/.test(cardNumber)) {
+
+            alert(
+                "Please enter a valid 16-digit card number."
+            );
+
+            return false;
+
+        }
+
+
+        if (!/^[0-9]{2}\/[0-9]{2}$/.test(expiry)) {
+
+            alert(
+                "Please enter expiry in MM/YY format."
+            );
+
+            return false;
+
+        }
+
+
+        if (!/^[0-9]{3}$/.test(cvv)) {
+
+            alert("Please enter a valid 3-digit CVV.");
 
             return false;
 
@@ -945,64 +1727,159 @@ function validateForm() {
 }
 
 
-/* PLACE ORDER */
+/* ==========================================================
+   PLACE FINAL ORDER
+========================================================== */
 
-function placeOrder() {
+function placeFinalOrder() {
 
-    if (!validateForm()) {
+
+    /* Product validation */
+
+    if (!productId) {
+
+        alert(
+            "Product information is missing. Please go back to the Crops page and select a product again."
+        );
+
         return;
+
     }
 
+
+    if (availableQuantity < 1) {
+
+        alert(
+            "This product is currently out of stock."
+        );
+
+        return;
+
+    }
+
+
+    /* Delivery validation */
+
+    if (!validateDeliveryDetails()) {
+
+        return;
+
+    }
+
+
+    /* Payment validation */
+
+    if (!validatePayment()) {
+
+        return;
+
+    }
+
+
+    /* Calculate total */
+
+    const subtotal =
+        unitPrice * orderQuantity;
+
+    const grandTotal =
+        subtotal +
+        DELIVERY_FEE +
+        PLATFORM_FEE;
+
+
+    /* Generate order ID */
 
     const orderId =
         "MM" +
         Date.now().toString().slice(-8);
 
 
-    document.getElementById("orderId")
-        .innerText = orderId;
+    /* Customer data */
+
+    const customer = {
+
+        name:
+            document
+                .getElementById("customerName")
+                .value
+                .trim(),
+
+        mobile:
+            document
+                .getElementById("mobileNumber")
+                .value
+                .trim(),
+
+        address:
+            document
+                .getElementById("deliveryAddress")
+                .value
+                .trim(),
+
+        city:
+            document
+                .getElementById("city")
+                .value
+                .trim(),
+
+        pin:
+            document
+                .getElementById("pinCode")
+                .value
+                .trim()
+
+    };
 
 
-    /* SAVE ORDER */
+    /* Order object */
 
     const order = {
 
         orderId: orderId,
 
-        product:
-            document.getElementById("productName")
-            .innerText,
+        productId: productId,
 
-        quantity: quantity,
+        product:
+            productNameValue,
+
+        price:
+            unitPrice,
+
+        quantity:
+            orderQuantity,
+
+        grade:
+            productGrade,
+
+        seller:
+            seller,
+
+        sellerRating:
+            sellerRating,
+
+        image:
+            productImageValue,
+
+        subtotal:
+            subtotal,
+
+        deliveryFee:
+            DELIVERY_FEE,
+
+        platformFee:
+            PLATFORM_FEE,
 
         total:
-            document.getElementById("total")
-            .innerText,
+            grandTotal,
+
+        paymentMethod:
+            selectedPayment,
 
         customer:
-            document.getElementById("name")
-            .value,
+            customer,
 
-        mobile:
-            document.getElementById("mobile")
-            .value,
-
-        address:
-            document.getElementById("address")
-            .value,
-
-        city:
-            document.getElementById("city")
-            .value,
-
-        pincode:
-            document.getElementById("pincode")
-            .value,
-
-        payment:
-            document.querySelector(
-                'input[name="payment"]:checked'
-            ).value,
+        status:
+            "Order Placed",
 
         date:
             new Date().toISOString()
@@ -1010,85 +1887,185 @@ function placeOrder() {
     };
 
 
+    /* Save latest order */
+
     localStorage.setItem(
         "mandimartLastOrder",
         JSON.stringify(order)
     );
 
 
-    document.getElementById("successPopup")
-        .style.display = "flex";
+    /* Save order history */
 
-}
+    let orderHistory = [];
 
+    try {
 
-/* HOME */
+        orderHistory =
+            JSON.parse(
+                localStorage.getItem("mandimartOrders")
+            ) || [];
 
-function goHome() {
+    } catch (error) {
 
-    window.location.href =
-        "index.html";
-
-}
-
-
-/* LOAD PRODUCT FROM URL */
-
-function loadProduct() {
-
-    const params =
-        new URLSearchParams(
-            window.location.search
-        );
-
-
-    const product =
-        params.get("product");
-
-    const price =
-        params.get("price");
-
-    const image =
-        params.get("image");
-
-
-    if (product) {
-
-        document.getElementById("productName")
-            .innerText = product;
+        orderHistory = [];
 
     }
 
 
-    if (price) {
+    orderHistory.push(order);
 
-        const numericPrice =
-            parseFloat(price);
 
-        if (!isNaN(numericPrice)) {
+    localStorage.setItem(
+        "mandimartOrders",
+        JSON.stringify(orderHistory)
+    );
 
-            document.getElementById("productPrice")
-                .innerText = numericPrice;
+
+    /* Update success modal */
+
+    document.getElementById("generatedOrderId").textContent =
+        orderId;
+
+    document.getElementById("successProduct").textContent =
+        productNameValue;
+
+    document.getElementById("successQuantity").textContent =
+        orderQuantity + " quintal(s)";
+
+    document.getElementById("successTotal").textContent =
+        formatNumber(grandTotal);
+
+
+    /* Show success modal */
+
+    const modalElement =
+        document.getElementById("successModal");
+
+    const modal =
+        new bootstrap.Modal(modalElement);
+
+    modal.show();
+
+}
+
+
+/* ==========================================================
+   CONTINUE SHOPPING
+========================================================== */
+
+function goToCrops() {
+
+    window.location.href = "crops.html";
+
+}
+
+
+/* ==========================================================
+   FORMAT NUMBER
+========================================================== */
+
+function formatNumber(number) {
+
+    return Number(number).toLocaleString("en-IN");
+
+}
+
+
+/* ==========================================================
+   CARD NUMBER FORMATTING
+========================================================== */
+
+document
+    .getElementById("cardNumber")
+    .addEventListener("input", function () {
+
+        let value =
+            this.value
+                .replace(/\D/g, "")
+                .substring(0, 16);
+
+        value =
+            value.replace(/(.{4})/g, "$1 ").trim();
+
+        this.value = value;
+
+    });
+
+
+/* ==========================================================
+   EXPIRY FORMATTING
+========================================================== */
+
+document
+    .getElementById("cardExpiry")
+    .addEventListener("input", function () {
+
+        let value =
+            this.value.replace(/\D/g, "");
+
+        if (value.length >= 3) {
+
+            value =
+                value.substring(0, 2) +
+                "/" +
+                value.substring(2, 4);
 
         }
 
-    }
+        this.value = value;
+
+    });
 
 
-    if (image) {
+/* ==========================================================
+   MOBILE NUMBER
+========================================================== */
 
-        document.getElementById("productImage")
-            .src = image;
+document
+    .getElementById("mobileNumber")
+    .addEventListener("input", function () {
 
-    }
+        this.value =
+            this.value
+                .replace(/\D/g, "")
+                .substring(0, 10);
 
-}
+    });
 
 
-loadProduct();
+/* ==========================================================
+   PIN CODE
+========================================================== */
+
+document
+    .getElementById("pinCode")
+    .addEventListener("input", function () {
+
+        this.value =
+            this.value
+                .replace(/\D/g, "")
+                .substring(0, 6);
+
+    });
+
+
+/* ==========================================================
+   CVV
+========================================================== */
+
+document
+    .getElementById("cardCvv")
+    .addEventListener("input", function () {
+
+        this.value =
+            this.value
+                .replace(/\D/g, "")
+                .substring(0, 3);
+
+    });
 
 </script>
 
 </body>
 </html>
-```
