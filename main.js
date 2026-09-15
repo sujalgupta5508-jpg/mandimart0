@@ -151,8 +151,27 @@ function contactSeller(seller) {
     }, 400);
 }
 
-function placeOrder(cropName) {
-    alert(`✅ Order placed for ${cropName}! The farmer will be notified.`);
+function placeOrderById(cropId) {
+
+    const crop = crops.find(c => c.id === cropId);
+
+    if (!crop) {
+        alert("❌ Crop not found.");
+        return;
+    }
+
+    const params = new URLSearchParams({
+        id: crop.id,
+        product: crop.name,
+        price: crop.price,
+        quantity: crop.qty,
+        grade: crop.grade,
+        seller: crop.seller,
+        rating: crop.rating,
+        image: crop.img
+    });
+
+    window.location.href = `checkout.html?${params.toString()}`;
 }
 
 // ===== AUCTIONS =====
