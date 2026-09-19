@@ -1421,8 +1421,7 @@ function resetComparison() {
 // ===============================
 
 // LOCAL TESTING
-const API_BASE_URL =
-    "https://mandimart-ai.onrender.com";
+
 
 // AFTER DEPLOYING PYTHON BACKEND:
 // const API_BASE_URL = "https://your-backend-url.onrender.com";
