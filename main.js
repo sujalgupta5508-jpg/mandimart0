@@ -504,8 +504,8 @@ function compareProducts() {
 // Example:
 // https://abcde-5000.app.github.dev
 //
-const API_BASE_URL = "YOUR_CODESPACE_PORT_5000_URL";
-
+const API_BASE_URL =
+    "https://mandimart-ai.onrender.com";
 
 // ============================================================
 // IMAGE PREVIEW
